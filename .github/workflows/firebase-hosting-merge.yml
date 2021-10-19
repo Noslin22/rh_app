@@ -19,8 +19,8 @@ jobs:
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_IGREJA_4019A }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_RH_APP_A2922 }}'
           channelId: live
-          projectId: igreja-4019a
+          projectId: rh-app-a2922
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels

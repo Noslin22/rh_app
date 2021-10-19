@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class PastorModel {
   final String nome;
   final String cpf;
@@ -11,5 +13,9 @@ class PastorModel {
       'nome': nome,
       'cpf': cpf,
     };
+  }
+
+  factory PastorModel.fromDocument(QueryDocumentSnapshot e) {
+    return PastorModel(nome: e["nome"] + " ", cpf: e["cpf"]);
   }
 }

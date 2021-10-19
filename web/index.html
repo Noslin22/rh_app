@@ -30,6 +30,10 @@
   <title>rh_app</title>
   <link rel="manifest" href="manifest.json">
 </head>
+<script src="//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.min.js"></script>
+<script type="text/javascript">
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.8.335/pdf.worker.min.js";
+</script>
 
 <body>
   <!-- This script installs service_worker.js to provide PWA functionality to
@@ -102,6 +106,24 @@
       // Service workers not supported. Just drop the <script> tag.
       loadMainDartJs();
     }
+  </script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-analytics.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAoTHH1Fh7Y8Rn4HpRSh_-vBFbEM_37eh4",
+      authDomain: "rh-app-a2922.firebaseapp.com",
+      projectId: "rh-app-a2922",
+      storageBucket: "rh-app-a2922.appspot.com",
+      messagingSenderId: "1018894337780",
+      appId: "1:1018894337780:web:8a4e03e7bfc973f72880a1",
+      measurementId: "G-SKLZZB40Q5"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const analytics = firebase.getAnalytics(app);
   </script>
 </body>
 

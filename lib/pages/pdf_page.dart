@@ -1,14 +1,13 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:native_pdf_view/native_pdf_view.dart' as pdf;
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class PdfView extends StatefulWidget {
-  final String path;
+  final Uint8List data;
   const PdfView({
     Key? key,
-    required this.path,
+    required this.data,
   }) : super(key: key);
 
   @override
@@ -16,9 +15,9 @@ class PdfView extends StatefulWidget {
 }
 
 class _PdfViewState extends State<PdfView> {
-  late Uint8List data;
   late PdfDocument document;
   late pdf.PdfController pdfController;
+  Uint8List? data;
   int currentPage = 1;
   int pages = 0;
 
@@ -67,10 +66,10 @@ class _PdfViewState extends State<PdfView> {
 
   @override
   void initState() {
-    data = File(widget.path).readAsBytesSync();
+    data = widget.data;
     document = PdfDocument(inputBytes: data);
     pdfController = pdf.PdfController(
-      document: pdf.PdfDocument.openData(data),
+      document: pdf.PdfDocument.openData(data!),
     );
     super.initState();
   }
@@ -120,7 +119,8 @@ class _PdfViewState extends State<PdfView> {
                 page.rotation = turn(rotation: rotationAngle, left: true);
                 List<int> bytes = document.save();
                 data = Uint8List.fromList(bytes);
-                pdfController.loadDocument(pdf.PdfDocument.openData(data),
+                pdfController.loadDocument(
+                    pdf.PdfDocument.openData(data!),
                     initialPage: currentPage);
               },
               icon: const Icon(Icons.rotate_left),
@@ -132,7 +132,8 @@ class _PdfViewState extends State<PdfView> {
                 page.rotation = turn(rotation: rotationAngle);
                 List<int> bytes = document.save();
                 data = Uint8List.fromList(bytes);
-                pdfController.loadDocument(pdf.PdfDocument.openData(data),
+                pdfController.loadDocument(
+                    pdf.PdfDocument.openData(data!),
                     initialPage: currentPage);
               },
               icon: const Icon(Icons.rotate_right),

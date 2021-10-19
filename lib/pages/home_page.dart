@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,7 @@ class _HomePageState extends State<HomePage> {
   late TextEditingController cpfController;
   final Stream<QuerySnapshot> pastores = db.collection("pastores").snapshots();
 
-  String filePath = "";
+  Uint8List? data;
   bool pdfSelected = false;
 
   List<DespesaModel> list = [];
@@ -60,22 +61,28 @@ class _HomePageState extends State<HomePage> {
         title: const Text("RH APP"),
         elevation: 0,
         actions: [
-          IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => PastorDialog(),
-              );
-            },
-            icon: const Icon(Icons.person),
+          Tooltip(
+            message: "Cadastrar Obreiro",
+            child: IconButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => PastorDialog(),
+                );
+              },
+              icon: const Icon(Icons.person),
+            ),
           ),
-          IconButton(
-            onPressed: () {
-              Printing.layoutPdf(onLayout: (format) {
-                return buildPdf(despesas: list);
-              });
-            },
-            icon: const Icon(Icons.print),
+          Tooltip(
+            message: "Imprimir",
+            child: IconButton(
+              onPressed: () {
+                Printing.layoutPdf(onLayout: (format) {
+                  return buildPdf(despesas: list);
+                });
+              },
+              icon: const Icon(Icons.print),
+            ),
           ),
         ],
       ),
@@ -101,8 +108,8 @@ class _HomePageState extends State<HomePage> {
                                       .map((e) => PastorModel.fromDocument(e))
                                       .toList();
                                   return ListField(
-                                    icon: Icons.today,
-                                    label: "Pastor",
+                                    icon: Icons.person,
+                                    label: "Obreiro",
                                     focusNode: nodes[0],
                                     controller: pastorController,
                                     suggestions: pastores,
@@ -256,6 +263,9 @@ class _HomePageState extends State<HomePage> {
                                 .values
                                 .add(
                                   ValueModel(
+                                    pastor: pastorController.text,
+                                    cpf: cpfController.text,
+                                    periodo: periodoController.text,
                                     apresentado: apresentadoController.text,
                                     cupom: cupomController.text,
                                     valor: valorController.text,
@@ -269,6 +279,9 @@ class _HomePageState extends State<HomePage> {
                                 name: despesa,
                                 values: [
                                   ValueModel(
+                                    pastor: pastorController.text,
+                                    cpf: cpfController.text,
+                                    periodo: periodoController.text,
                                     apresentado: apresentadoController.text,
                                     cupom: cupomController.text,
                                     valor: valorController.text,
@@ -304,6 +317,9 @@ class _HomePageState extends State<HomePage> {
                                 .values
                                 .add(
                                   ValueModel(
+                                    pastor: pastorController.text,
+                                    cpf: cpfController.text,
+                                    periodo: periodoController.text,
                                     apresentado: apresentadoController.text,
                                     cupom: cupomController.text,
                                     valor: valorController.text,
@@ -317,6 +333,9 @@ class _HomePageState extends State<HomePage> {
                                 name: despesa,
                                 values: [
                                   ValueModel(
+                                    pastor: pastorController.text,
+                                    cpf: cpfController.text,
+                                    periodo: periodoController.text,
                                     apresentado: apresentadoController.text,
                                     cupom: cupomController.text,
                                     valor: valorController.text,
@@ -403,6 +422,7 @@ class _HomePageState extends State<HomePage> {
                                               color: Colors.black,
                                             ),
                                           ),
+                                          SizedBox(width: 32),
                                         ],
                                       ),
                                     );
@@ -423,15 +443,15 @@ class _HomePageState extends State<HomePage> {
                                       recusado += parse(e.recusado);
                                     }
                                     return Padding(
-                                      padding: const EdgeInsets.only(top: 14),
+                                      padding: const EdgeInsets.only(top: 6),
                                       child: Row(
                                         children: [
                                           Text(
                                             "Total Apresentado: R\$${MoneyMaskedTextController(initialValue: recusado + aceito).text}",
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
-                                                color: Colors.black,
-                                                fontSize: 16,
+                                              color: Colors.black,
+                                              fontSize: 16,
                                             ),
                                           ),
                                           const SizedBox(width: 26),
@@ -447,7 +467,7 @@ class _HomePageState extends State<HomePage> {
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.black,
-                                                fontSize: 16,
+                                                  fontSize: 16,
                                                 ),
                                               ),
                                             ),
@@ -457,8 +477,8 @@ class _HomePageState extends State<HomePage> {
                                             "Total Recusado: R\$${MoneyMaskedTextController(initialValue: recusado).text}",
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
-                                                color: Colors.black,
-                                                fontSize: 16,
+                                              color: Colors.black,
+                                              fontSize: 16,
                                             ),
                                           ),
                                         ],
@@ -467,51 +487,96 @@ class _HomePageState extends State<HomePage> {
                                   } else {
                                     ValueModel value =
                                         despesa.values[index - 1];
-                                    return Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          value.apresentado,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                          ),
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 6),
+                                      child: GestureDetector(
+                                        onDoubleTap: () {
+                                          pastorController.text = value.pastor;
+                                          cpfController.text = value.cpf;
+                                          periodoController.text =
+                                              value.periodo;
+                                          despesaController.text = despesa.name;
+                                          apresentadoController.text =
+                                              value.apresentado;
+                                          cupomController.text = value.cupom;
+                                          valorController.text = value.valor;
+                                          valorRecusadoController.text =
+                                              value.recusado;
+                                          motivoController.text = value.motivo;
+                                          despesa.values.removeAt(index - 1);
+                                          if (despesa.values.isEmpty) {
+                                            list.removeWhere(
+                                              (element) =>
+                                                  element.name == despesa.name,
+                                            );
+                                          }
+                                          setState(() {});
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              value.apresentado,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            Text(
+                                              value.cupom,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            Text(
+                                              value.valor,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            Text(
+                                              value.recusado,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            Text(
+                                              value.motivo,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                despesa.values
+                                                    .removeAt(index - 1);
+                                                if (despesa.values.isEmpty) {
+                                                  list.removeWhere(
+                                                    (element) =>
+                                                        element.name ==
+                                                        despesa.name,
+                                                  );
+                                                }
+                                                setState(() {});
+                                              },
+                                              icon: const Icon(
+                                                Icons.delete,
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        Text(
-                                          value.cupom,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        Text(
-                                          value.valor,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        Text(
-                                          value.recusado,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        Text(
-                                          value.motivo,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     );
                                   }
                                 },
@@ -531,7 +596,7 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 child: pdfSelected
                     ? PdfView(
-                        path: filePath,
+                        data: data!,
                       )
                     : Center(
                         child: ElevatedButton(
@@ -539,8 +604,7 @@ class _HomePageState extends State<HomePage> {
                             FilePickerResult? result =
                                 await FilePicker.platform.pickFiles();
                             if (result != null) {
-                              File file = File(result.files.single.path!);
-                              filePath = file.path;
+                              data = result.files.single.bytes!;
                               setState(() {
                                 pdfSelected = true;
                               });

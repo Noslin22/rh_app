@@ -21,7 +21,7 @@ class PastorDialog extends StatelessWidget {
             child: InputField(
               controller: nome,
               icon: Icons.person,
-              label: "Pastor",
+              label: "Obreiro",
             ),
           ),
           const SizedBox(width: 10),

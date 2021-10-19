@@ -98,7 +98,7 @@ Future<Uint8List> buildPdf({required List<DespesaModel> despesas}) async {
                                       apresentado += parse(e.apresentado);
                                     }
                                     return Padding(
-                                      padding: const EdgeInsets.only(top: 14),
+                                      padding: const EdgeInsets.only(top: 14, bottom: 14,),
                                       child: Row(
                                         children: [
                                           Text(

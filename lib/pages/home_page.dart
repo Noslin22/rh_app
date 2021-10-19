@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -371,218 +370,216 @@ class _HomePageState extends State<HomePage> {
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                             ),
-                            subtitle: Flexible(
-                              child: ListView.builder(
-                                itemBuilder: (context, index) {
-                                  if (index == 0) {
-                                    return Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 10),
+                            subtitle: ListView.builder(
+                              itemBuilder: (context, index) {
+                                if (index == 0) {
+                                  return Padding(
+                                    padding:
+                                        const EdgeInsets.only(bottom: 10),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: const [
+                                        Text(
+                                          "Apresentado",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          "CF",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Valor",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          "NF Rejeitada",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Motivo",
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        SizedBox(width: 32),
+                                      ],
+                                    ),
+                                  );
+                                } else if (despesa.values.length + 1 ==
+                                    index) {
+                                  double parse(String value) {
+                                    value = value.replaceRange(0, 2, "");
+                                    value = value
+                                        .replaceAll(".", "")
+                                        .replaceAll(",", ".");
+                                    return double.parse(value);
+                                  }
+
+                                  double aceito = 0;
+                                  double recusado = 0;
+                                  for (var e in despesa.values) {
+                                    aceito += parse(e.valor);
+                                    recusado += parse(e.recusado);
+                                  }
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 6),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          "Total Apresentado: R\$${MoneyMaskedTextController(initialValue: recusado + aceito).text}",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 26),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[300],
+                                            border: Border.all(),
+                                          ),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8),
+                                            child: Text(
+                                              "Total Aceito: R\$${MoneyMaskedTextController(initialValue: aceito).text}",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 26),
+                                        Text(
+                                          "Total Recusado: R\$${MoneyMaskedTextController(initialValue: recusado).text}",
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                } else {
+                                  ValueModel value =
+                                      despesa.values[index - 1];
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 6),
+                                    child: GestureDetector(
+                                      onDoubleTap: () {
+                                        pastorController.text = value.pastor;
+                                        cpfController.text = value.cpf;
+                                        periodoController.text =
+                                            value.periodo;
+                                        despesaController.text = despesa.name;
+                                        apresentadoController.text =
+                                            value.apresentado;
+                                        cupomController.text = value.cupom;
+                                        valorController.text = value.valor;
+                                        valorRecusadoController.text =
+                                            value.recusado;
+                                        motivoController.text = value.motivo;
+                                        despesa.values.removeAt(index - 1);
+                                        if (despesa.values.isEmpty) {
+                                          list.removeWhere(
+                                            (element) =>
+                                                element.name == despesa.name,
+                                          );
+                                        }
+                                        setState(() {});
+                                      },
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
-                                        children: const [
-                                          Text(
-                                            "Apresentado",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          Text(
-                                            "CF",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Valor",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          Text(
-                                            "NF Rejeitada",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Motivo",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          SizedBox(width: 32),
-                                        ],
-                                      ),
-                                    );
-                                  } else if (despesa.values.length + 1 ==
-                                      index) {
-                                    double parse(String value) {
-                                      value = value.replaceRange(0, 2, "");
-                                      value = value
-                                          .replaceAll(".", "")
-                                          .replaceAll(",", ".");
-                                      return double.parse(value);
-                                    }
-
-                                    double aceito = 0;
-                                    double recusado = 0;
-                                    for (var e in despesa.values) {
-                                      aceito += parse(e.valor);
-                                      recusado += parse(e.recusado);
-                                    }
-                                    return Padding(
-                                      padding: const EdgeInsets.only(top: 6),
-                                      child: Row(
                                         children: [
                                           Text(
-                                            "Total Apresentado: R\$${MoneyMaskedTextController(initialValue: recusado + aceito).text}",
+                                            value.apresentado,
                                             style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
                                               color: Colors.black,
-                                              fontSize: 16,
                                             ),
                                           ),
-                                          const SizedBox(width: 26),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: Colors.grey[300],
-                                              border: Border.all(),
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8),
-                                              child: Text(
-                                                "Total Aceito: R\$${MoneyMaskedTextController(initialValue: aceito).text}",
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 26),
                                           Text(
-                                            "Total Recusado: R\$${MoneyMaskedTextController(initialValue: recusado).text}",
+                                            value.cupom,
                                             style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
                                               color: Colors.black,
-                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          Text(
+                                            value.valor,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          Text(
+                                            value.recusado,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          Text(
+                                            value.motivo,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: () {
+                                              despesa.values
+                                                  .removeAt(index - 1);
+                                              if (despesa.values.isEmpty) {
+                                                list.removeWhere(
+                                                  (element) =>
+                                                      element.name ==
+                                                      despesa.name,
+                                                );
+                                              }
+                                              setState(() {});
+                                            },
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
                                             ),
                                           ),
                                         ],
                                       ),
-                                    );
-                                  } else {
-                                    ValueModel value =
-                                        despesa.values[index - 1];
-                                    return Padding(
-                                      padding: const EdgeInsets.only(bottom: 6),
-                                      child: GestureDetector(
-                                        onDoubleTap: () {
-                                          pastorController.text = value.pastor;
-                                          cpfController.text = value.cpf;
-                                          periodoController.text =
-                                              value.periodo;
-                                          despesaController.text = despesa.name;
-                                          apresentadoController.text =
-                                              value.apresentado;
-                                          cupomController.text = value.cupom;
-                                          valorController.text = value.valor;
-                                          valorRecusadoController.text =
-                                              value.recusado;
-                                          motivoController.text = value.motivo;
-                                          despesa.values.removeAt(index - 1);
-                                          if (despesa.values.isEmpty) {
-                                            list.removeWhere(
-                                              (element) =>
-                                                  element.name == despesa.name,
-                                            );
-                                          }
-                                          setState(() {});
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              value.apresentado,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            Text(
-                                              value.cupom,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            Text(
-                                              value.valor,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            Text(
-                                              value.recusado,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            Text(
-                                              value.motivo,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            IconButton(
-                                              onPressed: () {
-                                                despesa.values
-                                                    .removeAt(index - 1);
-                                                if (despesa.values.isEmpty) {
-                                                  list.removeWhere(
-                                                    (element) =>
-                                                        element.name ==
-                                                        despesa.name,
-                                                  );
-                                                }
-                                                setState(() {});
-                                              },
-                                              icon: const Icon(
-                                                Icons.delete,
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                },
-                                itemCount: despesa.values.length + 2,
-                                shrinkWrap: true,
-                              ),
+                                    ),
+                                  );
+                                }
+                              },
+                              itemCount: despesa.values.length + 2,
+                              shrinkWrap: true,
                             ),
                           );
                         },

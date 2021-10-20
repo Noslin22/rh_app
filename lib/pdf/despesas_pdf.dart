@@ -8,6 +8,73 @@ import 'package:rh_app/models/value_model.dart';
 Future<Uint8List> buildPdf({required List<DespesaModel> despesas}) async {
   final Document doc = Document();
 
+  final List<String> fields = [
+    "Apresentado",
+    "Cupom",
+    "Valor",
+    "Valor Recusado",
+    "Motivo",
+  ];
+
+  Widget generateTotal(int index){
+    double parse(String value) {
+      value = value.replaceRange(0, 2, "");
+      value = value.replaceAll(".", "").replaceAll(",", ".");
+      return double.parse(value);
+    }
+
+    double aceito = 0;
+    double recusado = 0;
+    double apresentado = 0;
+    for (var e in despesas[index].values) {
+      aceito += parse(e.valor);
+      recusado += parse(e.recusado);
+      apresentado += parse(e.apresentado);
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 4),
+      child: Row(
+        children: [
+          Text(
+            "Total Apresentado: R\$${MoneyMaskedTextController(initialValue: apresentado).text}",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: PdfColors.black,
+              fontSize: 12,
+            ),
+          ),
+          SizedBox(width: 26),
+          Container(
+            decoration: BoxDecoration(
+              color: PdfColors.grey300,
+              border: Border.all(),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                "Total Aceito: R\$${MoneyMaskedTextController(initialValue: aceito).text}",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: PdfColors.black,
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 26),
+          Text(
+            "Total Recusado: R\$${MoneyMaskedTextController(initialValue: recusado).text}",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: PdfColors.black,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   PdfPageFormat? format;
   doc.addPage(
     MultiPage(
@@ -16,180 +83,79 @@ Future<Uint8List> buildPdf({required List<DespesaModel> despesas}) async {
           despesas.length,
           (index) {
             DespesaModel despesa = despesas[index];
+            List<ValueModel> values = despesa.values;
             return Flex(
-                  mainAxisSize: MainAxisSize.min,
-                  direction: Axis.vertical,
-                  children: [
-                    Container(
-                      width: double.maxFinite,
-                      padding: const EdgeInsets.only(left: 16),
-                      color: PdfColors.grey300,
-                      child: Text(
-                        despesa.name,
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+              mainAxisSize: MainAxisSize.min,
+              direction: Axis.vertical,
+              children: [
+                Container(
+                  width: double.maxFinite,
+                  padding: const EdgeInsets.only(left: 16),
+                  color: PdfColors.grey300,
+                  child: Text(
+                    despesa.name,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Flexible(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ...List.generate(
+                        5,
+                        (index) => Column(
+                          children: [
+                            Text(
+                              fields[index],
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: PdfColors.black,
+                              ),
+                            ),
+                            ...List.generate(values.length, (i) {
+                              ValueModel value = values[i];
+                              late String variable;
+                              switch (index) {
+                                case 0:
+                                  variable = value.apresentado;
+                                  break;
+                                case 1:
+                                  variable = value.cupom;
+                                  break;
+                                case 2:
+                                  variable = value.valor;
+                                  break;
+                                case 3:
+                                  variable = value.recusado;
+                                  break;
+                                case 4:
+                                  variable = value.motivo;
+                                  break;
+                                default:
+                                  variable = "";
+                              }
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                child: Text(
+                                  variable,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: PdfColors.black,
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
                       ),
-                    ),
-                    Flexible(
-                      child: ListView.builder(
-                        itemBuilder: (context, index) {
-                          if (index == 0) {
-                                    return Padding(
-                                      padding:
-                                         const EdgeInsets.only(bottom: 10),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Apresentado",
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: PdfColors.black,
-                                            ),
-                                          ),
-                                          Text(
-                                            "CF",
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: PdfColors.black,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Valor",
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: PdfColors.black,
-                                            ),
-                                          ),
-                                          Text(
-                                            "NF Rejeitada",
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: PdfColors.black,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Motivo",
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: PdfColors.black,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  } else if (despesa.values.length + 1 ==
-                                      index) {
-                                    double parse(String value) {
-                                      value = value.replaceRange(0, 2, "");
-                                      value = value
-                                          .replaceAll(".", "")
-                                          .replaceAll(",", ".");
-                                      return double.parse(value);
-                                    }
-
-                                    double aceito = 0;
-                                    double recusado = 0;
-                                    double apresentado =0;
-                                    for (var e in despesa.values) {
-                                      aceito += parse(e.valor);
-                                      recusado += parse(e.recusado);
-                                      apresentado += parse(e.apresentado);
-                                    }
-                                    return Padding(
-                                      padding: const EdgeInsets.only(top: 14, bottom: 14,),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            "Total Apresentado: R\$${MoneyMaskedTextController(initialValue: apresentado).text}",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                                color: PdfColors.black,
-                                                fontSize: 12,
-                                            ),
-                                          ),
-                                         SizedBox(width: 26),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              color: PdfColors.grey300,
-                                              border: Border.all(),
-                                            ),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(8),
-                                              child: Text(
-                                                "Total Aceito: R\$${MoneyMaskedTextController(initialValue: aceito).text}",
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: PdfColors.black,
-                                                fontSize: 12,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                         SizedBox(width: 26),
-                                          Text(
-                                            "Total Recusado: R\$${MoneyMaskedTextController(initialValue: recusado).text}",
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                                color: PdfColors.black,
-                                                fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  } else {
-                                    ValueModel value =
-                                        despesa.values[index - 1];
-                                    return Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          value.apresentado,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: PdfColors.black,
-                                          ),
-                                        ),
-                                        Text(
-                                          value.cupom,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: PdfColors.black,
-                                          ),
-                                        ),
-                                        Text(
-                                          value.valor,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: PdfColors.black,
-                                          ),
-                                        ),
-                                        Text(
-                                          value.recusado,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: PdfColors.black,
-                                          ),
-                                        ),
-                                        Text(
-                                          value.motivo,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: PdfColors.black,
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }
-                        },
-                        itemCount: despesa.values.length + 2,
-                      ),
-                    ),
-                  ],
-                );
+                    ],
+                  ),
+                ),
+                generateTotal(index),
+              ],
+            );
           },
         );
       },

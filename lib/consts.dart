@@ -35,4 +35,4 @@ final TextEditingController valorRecusadoController = MoneyMaskedTextController(
 );
 final TextEditingController motivoController = TextEditingController();
 
-List<FocusNode> nodes = List.generate(8, (_) => FocusNode());
+List<FocusNode> nodes = List.generate(7, (_) => FocusNode());

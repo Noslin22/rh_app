@@ -1,6 +1,6 @@
 {
-    "name": "rh_app",
-    "short_name": "rh_app",
+    "name": "DP Seven",
+    "short_name": "DP7",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -25,121 +25,113 @@ class _PastorDialogState extends State<PastorDialog> {
   Widget build(BuildContext context) {
     final TextEditingController obreiroController = TextEditingController();
     final BoxController obreiroBox = BoxController();
-    return AlertDialog(
-      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-      title: Text(modes[mode] + " Obreiro"),
-      content: Container(
-        constraints: mode == 2 ? const BoxConstraints(maxHeight: 50, maxWidth: 260,) : null,
-        child: Row(
+    return GestureDetector(
+      onTap: () => mode != 0 ? obreiroBox.close!() : null,
+      child: AlertDialog(
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        title: Text(modes[mode] + " Obreiro"),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             mode == 0
-                ? Expanded(
-                    child: InputField(
-                      error: true,
-                      controller: obreiroController,
-                      icon: Icons.person,
-                      label: "Obreiro",
-                    ),
+                ? InputField(
+                    error: true,
+                    controller: obreiroController,
+                    icon: Icons.person,
+                    label: "Obreiro",
                   )
-                : Container(
-                  
-                  constraints: BoxConstraints(maxHeight: 50, maxWidth: mode == 2 ? 260 : 127,),
-                    child: ListField(
-                      icon: Icons.person,
-                      label: "Obreiro",
-                      controller: obreiroController,
-                      suggestions: obreiros.map((e) => e.nome).toList(),
-                      box: obreiroBox,
-                      selected: (element) {
-                        obreiroController.text = element.trim();
-                      },
-                    ),
+                : ListField(
+                    icon: Icons.person,
+                    label: "Obreiro",
+                    controller: obreiroController,
+                    suggestions: obreiros.map((e) => e.nome).toList(),
+                    box: obreiroBox,
+                    selected: (element) {
+                      obreiroController.text = element.trim();
+                    },
                   ),
             mode != 2
-                ? const SizedBox(width: 10)
+                ? const SizedBox(height: 10)
                 : Container(
                     width: 0,
                   ),
             mode != 2
-                ? Expanded(
-                  child: InputField(
+                ? InputField(
                     error: true,
                     controller: cpf,
                     icon: Icons.payment,
                     label: "CPF",
-                  ),
-                )
+                  )
                 : Container(
                     width: 0,
                   ),
           ],
         ),
-      ),
-      actions: [
-        ElevatedButton(
-          onPressed: () {
-            obreiroController.text = "";
-            if (mode != 2) {
-              mode += 1;
-            } else {
-              mode = 0;
-            }
-            setState(() {});
-          },
-          child: const Text("Modo"),
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            if (cpf.text == "") {
-              if (mode == 2) {
-                db
-                    .collection("pastores")
-                    .where("nome", isEqualTo: obreiroController.text)
-                    .get()
-                    .then(
-                      (value) => db
-                          .collection("pastores")
-                          .doc(value.docs.single.id)
-                          .delete(),
-                    );
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              obreiroController.text = "";
+              if (mode != 2) {
+                mode += 1;
+              } else {
+                mode = 0;
               }
-            } else {
-              switch (mode) {
-                case 0:
-                  db.collection("pastores").add({
-                    "nome": obreiroController.text,
-                    "cpf": cpf.text,
-                  });
-                  break;
-                case 1:
+              setState(() {});
+            },
+            child: const Text("Modo"),
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (cpf.text == "") {
+                if (mode == 2) {
                   db
                       .collection("pastores")
                       .where("nome", isEqualTo: obreiroController.text)
                       .get()
-                      .then((value) {
-                    return db
-                        .collection("pastores")
-                        .doc(value.docs.single.id)
-                        .update({
+                      .then(
+                        (value) => db
+                            .collection("pastores")
+                            .doc(value.docs.single.id)
+                            .delete(),
+                      );
+                }
+              } else {
+                switch (mode) {
+                  case 0:
+                    db.collection("pastores").add({
                       "nome": obreiroController.text,
                       "cpf": cpf.text,
                     });
-                  });
-                  break;
+                    break;
+                  case 1:
+                    db
+                        .collection("pastores")
+                        .where("nome", isEqualTo: obreiroController.text)
+                        .get()
+                        .then((value) {
+                      return db
+                          .collection("pastores")
+                          .doc(value.docs.single.id)
+                          .update({
+                        "nome": obreiroController.text,
+                        "cpf": cpf.text,
+                      });
+                    });
+                    break;
+                }
               }
-            }
-            Navigator.of(context).pop();
-          },
-          child: Text(modes[mode]),
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+              Navigator.of(context).pop();
+            },
+            child: Text(modes[mode]),
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

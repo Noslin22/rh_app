@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
             home: const HomePage(),
             debugShowCheckedModeBanner: false,
             theme: ThemeData(primarySwatch: Colors.indigo),
-            title: "RH App",
+            title: "DP Seven",
           );
   }
 }

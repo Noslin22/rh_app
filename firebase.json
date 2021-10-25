@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "dpseven",
     "public": "build/web",
     "ignore": [
       "firebase.json",

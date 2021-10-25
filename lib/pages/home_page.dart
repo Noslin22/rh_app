@@ -162,296 +162,430 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     cpfController = TextEditingController(text: cpf);
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.indigo,
-        title: const Text("RH APP"),
-        elevation: 0,
-        actions: [
-          Tooltip(
-            message: "Gerenciar Obreiro",
-            child: IconButton(
-              onPressed: () {
-                // pastorBox.close!();
-                // despesaBox.close!();
-                showDialog(
-                  context: context,
-                  builder: (context) => PastorDialog(),
-                );
-              },
-              icon: const Icon(Icons.person),
+    return GestureDetector(
+      onTap: () {
+        pastorBox.close!();
+        despesaBox.close!();
+        pastorController.text = "";
+        despesaController.text = "";
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.indigo,
+          title: const Text("Conferência de Relatório"),
+          elevation: 0,
+          actions: [
+            Tooltip(
+              message: "Gerenciar Obreiro",
+              child: IconButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const PastorDialog(),
+                  );
+                },
+                icon: const Icon(Icons.person),
+              ),
             ),
-          ),
-          Tooltip(
-            message: "Imprimir",
-            child: IconButton(
-              onPressed: () {
-                Printing.layoutPdf(onLayout: (format) {
-                  return buildPdf(despesas: list);
-                });
-              },
-              icon: const Icon(Icons.print),
+            Tooltip(
+              message: "Imprimir",
+              child: IconButton(
+                onPressed: () {
+                  Printing.layoutPdf(onLayout: (format) {
+                    return buildPdf(despesas: list);
+                  });
+                },
+                icon: const Icon(Icons.print),
+              ),
             ),
-          ),
-        ],
-      ),
-      body: Container(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: formKey,
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 6,
-                          child: StreamBuilder<QuerySnapshot>(
-                              stream: pastores,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  List<PastorModel> pastores = snapshot
-                                      .data!.docs
-                                      .map((e) => PastorModel.fromDocument(e))
-                                      .toList();
-                                      obreiros = pastores;
-                                  return ListField(
-                                    icon: Icons.person,
-                                    label: "Obreiro",
-                                    focusNode: nodes[0],
-                                    controller: pastorController,
-                                    suggestions: pastores,
-                                    searchBy: true,
-                                    box: pastorBox,
-                                    selected: (pastor) {
-                                      setState(() {
-                                        cpf = pastor['cpf'];
-                                      });
-                                      pastorController.text =
-                                          pastor["nome"].trim();
-                                      FocusScope.of(context)
-                                          .requestFocus(nodes[1]);
-                                      showMonthPicker(
-                                        locale: const Locale("pt", "BR"),
-                                        context: context,
-                                        initialDate: DateTime.now(),
-                                        firstDate: DateTime(
-                                          DateTime.now().year,
-                                        ),
-                                        lastDate:
-                                            DateTime(DateTime.now().year, 12),
-                                      )
-                                          .then(
-                                            (value) => periodoController.text =
-                                                "${value!.month < 10 ? "0" + value.month.toString() : value.month.toString()}/${value.year.toString()}",
-                                          )
-                                          .then(
-                                            (_) => FocusScope.of(context)
-                                                .requestFocus(nodes[1]),
-                                          );
-                                    },
-                                  );
-                                } else {
-                                  return const LinearProgressIndicator();
-                                }
-                              }),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: InputField(
-                            icon: Icons.payment,
-                            controller: cpfController,
-                            label: "CPF",
-                            readOnly: true,
+          ],
+        ),
+        body: Container(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: formKey,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 6,
+                            child: StreamBuilder<QuerySnapshot>(
+                                stream: pastores,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List<PastorModel> pastores = snapshot
+                                        .data!.docs
+                                        .map((e) => PastorModel.fromDocument(e))
+                                        .toList();
+                                    obreiros = pastores;
+                                    return ListField(
+                                      icon: Icons.person,
+                                      label: "Obreiro",
+                                      focusNode: nodes[0],
+                                      controller: pastorController,
+                                      suggestions: pastores,
+                                      searchBy: true,
+                                      box: pastorBox,
+                                      selected: (pastor) {
+                                        setState(() {
+                                          cpf = pastor['cpf'];
+                                        });
+                                        pastorController.text =
+                                            pastor["nome"].trim();
+                                        FocusScope.of(context)
+                                            .requestFocus(nodes[1]);
+                                        showMonthPicker(
+                                          locale: const Locale("pt", "BR"),
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime(
+                                            DateTime.now().year,
+                                          ),
+                                          lastDate:
+                                              DateTime(DateTime.now().year, 12),
+                                        )
+                                            .then(
+                                              (value) => periodoController
+                                                      .text =
+                                                  "${value!.month < 10 ? "0" + value.month.toString() : value.month.toString()}/${value.year.toString()}",
+                                            )
+                                            .then(
+                                              (_) => FocusScope.of(context)
+                                                  .requestFocus(nodes[1]),
+                                            );
+                                      },
+                                    );
+                                  } else {
+                                    return const LinearProgressIndicator();
+                                  }
+                                }),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            flex: 2,
                             child: InputField(
-                          controller: periodoController,
-                          icon: Icons.today,
-                          label: "Período",
-                        )),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: ListField(
-                            focusNode: nodes[1],
-                            icon: Icons.sticky_note_2,
-                            label: "Despesa",
-                            selected: (despesa) {
-                              despesaController.text = despesa.trim();
-                              FocusScope.of(context).requestFocus(nodes[2]);
-                            },
-                            controller: despesaController,
-                            suggestions: despesas,
-                            box: despesaBox,
+                              icon: Icons.payment,
+                              controller: cpfController,
+                              label: "CPF",
+                              readOnly: true,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: InputField(
-                            icon: Icons.monetization_on,
-                            label: fields[0],
-                            controller: apresentadoController,
-                            focusNode: nodes[2],
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                              child: InputField(
+                            controller: periodoController,
+                            icon: Icons.today,
+                            label: "Período",
+                          )),
+                          const SizedBox(
+                            width: 10,
                           ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: InputField(
-                            icon: Icons.payments,
-                            label: fields[1],
-                            controller: cupomController,
-                            focusNode: nodes[3],
+                          Expanded(
+                            child: ListField(
+                              focusNode: nodes[1],
+                              icon: Icons.sticky_note_2,
+                              label: "Despesa",
+                              selected: (despesa) {
+                                despesaController.text = despesa.trim();
+                                FocusScope.of(context).requestFocus(nodes[2]);
+                              },
+                              controller: despesaController,
+                              suggestions: despesas,
+                              box: despesaBox,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: InputField(
-                            icon: Icons.attach_money,
-                            label: fields[2],
-                            controller: valorController,
-                            focusNode: nodes[4],
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InputField(
+                              icon: Icons.monetization_on,
+                              label: fields[0],
+                              controller: apresentadoController,
+                              focusNode: nodes[2],
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: InputField(
-                            icon: Icons.money_off,
-                            label: fields[3],
-                            controller: valorRecusadoController,
-                            focusNode: nodes[5],
+                          const SizedBox(
+                            width: 10,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    InputField(
-                        icon: Icons.not_listed_location,
-                        label: fields[4],
-                        controller: motivoController,
-                        focusNode: nodes[6],
-                        submit: () {
+                          Expanded(
+                            child: InputField(
+                              icon: Icons.payments,
+                              label: fields[1],
+                              controller: cupomController,
+                              focusNode: nodes[3],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InputField(
+                              icon: Icons.attach_money,
+                              label: fields[2],
+                              controller: valorController,
+                              focusNode: nodes[4],
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            child: InputField(
+                              icon: Icons.money_off,
+                              label: fields[3],
+                              controller: valorRecusadoController,
+                              focusNode: nodes[5],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      InputField(
+                          icon: Icons.not_listed_location,
+                          label: fields[4],
+                          controller: motivoController,
+                          focusNode: nodes[6],
+                          submit: () {
+                            submit();
+                            if (formKey.currentState!.validate()) {
+                              clearFields();
+                              setState(() {});
+                            }
+                          }),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
                           submit();
                           if (formKey.currentState!.validate()) {
                             clearFields();
                             setState(() {});
                           }
-                        }),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        submit();
-                        if (formKey.currentState!.validate()) {
-                          clearFields();
-                          setState(() {});
-                        }
-                      },
-                      child: const Text("Inserir"),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Flexible(
-                      child: ListView.builder(
-                        itemBuilder: (context, index) {
-                          DespesaModel despesa = list[index];
-                          List<ValueModel> values = despesa.values;
-                          return Column(
-                            children: [
-                              ListTile(
-                                title: Container(
-                                  padding: const EdgeInsets.only(left: 16),
-                                  color: Colors.grey[300],
-                                  child: Text(
-                                    despesa.name,
-                                    style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
+                        },
+                        child: const Text("Inserir"),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Flexible(
+                        child: ListView.builder(
+                          itemBuilder: (context, index) {
+                            DespesaModel despesa = list[index];
+                            List<ValueModel> values = despesa.values;
+                            return Column(
+                              children: [
+                                ListTile(
+                                  title: Container(
+                                    padding: const EdgeInsets.only(left: 16),
+                                    color: Colors.grey[300],
+                                    child: Text(
+                                      despesa.name,
+                                      style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
-                                ),
-                                subtitle: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    ...List.generate(
-                                      5,
-                                      (index) => Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                  subtitle: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      ...List.generate(
+                                        5,
+                                        (index) => Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              fields[index],
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            ...List.generate(values.length,
+                                                (i) {
+                                              ValueModel value = values[i];
+                                              late String variable;
+                                              switch (index) {
+                                                case 0:
+                                                  variable = value.apresentado;
+                                                  break;
+                                                case 1:
+                                                  variable = value.cupom;
+                                                  break;
+                                                case 2:
+                                                  variable = value.valor;
+                                                  break;
+                                                case 3:
+                                                  variable = value.recusado;
+                                                  break;
+                                                case 4:
+                                                  variable = value.motivo;
+                                                  break;
+                                                default:
+                                                  variable = "";
+                                              }
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 8),
+                                                child: Text(
+                                                  variable,
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              );
+                                            }),
+                                          ],
+                                        ),
+                                      ),
+                                      Column(
                                         children: [
-                                          Text(
-                                            fields[index],
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black,
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 6,
+                                              horizontal: 6,
                                             ),
                                           ),
-                                          ...List.generate(values.length, (i) {
-                                            ValueModel value = values[i];
-                                            late String variable;
-                                            switch (index) {
-                                              case 0:
-                                                variable = value.apresentado;
-                                                break;
-                                              case 1:
-                                                variable = value.cupom;
-                                                break;
-                                              case 2:
-                                                variable = value.valor;
-                                                break;
-                                              case 3:
-                                                variable = value.recusado;
-                                                break;
-                                              case 4:
-                                                variable = value.motivo;
-                                                break;
-                                              default:
-                                                variable = "";
-                                            }
+                                          ...List.generate(values.length,
+                                              (index) {
                                             return Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
                                                       vertical: 8),
-                                              child: Text(
-                                                variable,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  showModalBottomSheet(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return Row(
+                                                        children: [
+                                                          Expanded(
+                                                            child: Container(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(30),
+                                                              child: TextButton(
+                                                                child: const Text(
+                                                                    "Editar"),
+                                                                onPressed: () {
+                                                                  pastorController
+                                                                      .text = values[
+                                                                          index]
+                                                                      .pastor;
+                                                                  despesaController
+                                                                          .text =
+                                                                      despesa
+                                                                          .name;
+                                                                  periodoController
+                                                                      .text = values[
+                                                                          index]
+                                                                      .periodo;
+                                                                  apresentadoController
+                                                                      .text = values[
+                                                                          index]
+                                                                      .apresentado;
+                                                                  cupomController
+                                                                          .text =
+                                                                      values[index]
+                                                                          .cupom;
+                                                                  valorController
+                                                                          .text =
+                                                                      values[index]
+                                                                          .valor;
+                                                                  valorRecusadoController
+                                                                      .text = values[
+                                                                          index]
+                                                                      .recusado;
+                                                                  motivoController
+                                                                      .text = values[
+                                                                          index]
+                                                                      .motivo;
+                                                                  despesa.values
+                                                                      .removeAt(
+                                                                          index);
+                                                                  if (despesa
+                                                                      .values
+                                                                      .isEmpty) {
+                                                                    list.removeWhere((element) =>
+                                                                        element
+                                                                            .name ==
+                                                                        despesa
+                                                                            .name);
+                                                                  }
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                  setState(
+                                                                      () {});
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          Expanded(
+                                                            child: Container(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(30),
+                                                              child: TextButton(
+                                                                child: const Text(
+                                                                    "Excluir"),
+                                                                onPressed: () {
+                                                                  despesa.values
+                                                                      .removeAt(
+                                                                          index);
+                                                                  if (despesa
+                                                                      .values
+                                                                      .isEmpty) {
+                                                                    list.removeWhere((element) =>
+                                                                        element
+                                                                            .name ==
+                                                                        despesa
+                                                                            .name);
+                                                                  }
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                  setState(
+                                                                      () {});
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                child: const Icon(
+                                                  Icons.menu,
+                                                  size: 14,
                                                   color: Colors.black,
                                                 ),
                                               ),
@@ -459,166 +593,43 @@ class _HomePageState extends State<HomePage> {
                                           }),
                                         ],
                                       ),
-                                    ),
-                                    Column(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 6,
-                                            horizontal: 6,
-                                          ),
-                                        ),
-                                        ...List.generate(values.length,
-                                            (index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 8),
-                                            child: GestureDetector(
-                                              onTap: () {
-                                                showModalBottomSheet(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(30),
-                                                            child: TextButton(
-                                                              child: const Text(
-                                                                  "Editar"),
-                                                              onPressed: () {
-                                                                pastorController
-                                                                        .text =
-                                                                    values[index]
-                                                                        .pastor;
-                                                                despesaController
-                                                                        .text =
-                                                                    despesa
-                                                                        .name;
-                                                                periodoController
-                                                                        .text =
-                                                                    values[index]
-                                                                        .periodo;
-                                                                apresentadoController
-                                                                    .text = values[
-                                                                        index]
-                                                                    .apresentado;
-                                                                cupomController
-                                                                        .text =
-                                                                    values[index]
-                                                                        .cupom;
-                                                                valorController
-                                                                        .text =
-                                                                    values[index]
-                                                                        .valor;
-                                                                valorRecusadoController
-                                                                        .text =
-                                                                    values[index]
-                                                                        .recusado;
-                                                                motivoController
-                                                                        .text =
-                                                                    values[index]
-                                                                        .motivo;
-                                                                despesa.values
-                                                                    .removeAt(
-                                                                        index);
-                                                                if (despesa
-                                                                    .values
-                                                                    .isEmpty) {
-                                                                  list.removeWhere((element) =>
-                                                                      element
-                                                                          .name ==
-                                                                      despesa
-                                                                          .name);
-                                                                }
-                                                                Navigator.pop(
-                                                                    context);
-                                                                setState(() {});
-                                                              },
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        Expanded(
-                                                          child: Container(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(30),
-                                                            child: TextButton(
-                                                              child: const Text(
-                                                                  "Excluir"),
-                                                              onPressed: () {
-                                                                despesa.values
-                                                                    .removeAt(
-                                                                        index);
-                                                                if (despesa
-                                                                    .values
-                                                                    .isEmpty) {
-                                                                  list.removeWhere((element) =>
-                                                                      element
-                                                                          .name ==
-                                                                      despesa
-                                                                          .name);
-                                                                }
-                                                                Navigator.pop(
-                                                                    context);
-                                                                setState(() {});
-                                                              },
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                              child: const Icon(
-                                                Icons.menu,
-                                                size: 14,
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          );
-                                        }),
-                                      ],
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              generateTotal(index),
-                            ],
-                          );
-                        },
-                        itemCount: list.length,
-                        shrinkWrap: true,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: pdfSelected
-                    ? PdfView(
-                        data: data!,
-                      )
-                    : Center(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            FilePickerResult? result =
-                                await FilePicker.platform.pickFiles();
-                            if (result != null) {
-                              data = result.files.single.bytes!;
-                              setState(() {
-                                pdfSelected = true;
-                              });
-                            }
+                                generateTotal(index),
+                              ],
+                            );
                           },
-                          child: const Text("Selecionar o PDF"),
+                          itemCount: list.length,
+                          shrinkWrap: true,
                         ),
                       ),
-              ),
-            ],
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: pdfSelected
+                      ? PdfView(
+                          data: data!,
+                        )
+                      : Center(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles();
+                              if (result != null) {
+                                data = result.files.single.bytes!;
+                                setState(() {
+                                  pdfSelected = true;
+                                });
+                              }
+                            },
+                            child: const Text("Selecionar o PDF"),
+                          ),
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

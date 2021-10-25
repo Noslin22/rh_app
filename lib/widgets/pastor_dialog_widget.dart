@@ -29,50 +29,31 @@ class _PastorDialogState extends State<PastorDialog> {
       contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       title: Text(modes[mode] + " Obreiro"),
       content: Container(
-        constraints: const BoxConstraints(
-          minWidth: 260,
-          maxWidth: 300,
-          minHeight: 50,
-          maxHeight: 50,
-        ),
+        constraints: mode == 2 ? const BoxConstraints(maxHeight: 50, maxWidth: 260,) : null,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             mode == 0
-                ? Container(
-                    constraints: const BoxConstraints(
-                      minWidth: 100,
-                      maxWidth: 160,
-                      minHeight: 40,
-                      maxHeight: 100,
-                    ),
-                    child: Flexible(
-                      child: InputField(
-                        error: true,
-                        controller: obreiroController,
-                        icon: Icons.person,
-                        label: "Obreiro",
-                      ),
+                ? Expanded(
+                    child: InputField(
+                      error: true,
+                      controller: obreiroController,
+                      icon: Icons.person,
+                      label: "Obreiro",
                     ),
                   )
-                : ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minWidth: 100,
-                      maxWidth: mode == 2 ? 260 : 160,
-                      minHeight: 40,
-                      maxHeight: 100,
-                    ),
-                    child: Flexible(
-                      child: ListField(
-                        icon: Icons.person,
-                        label: "Obreiro",
-                        controller: obreiroController,
-                        suggestions: obreiros.map((e) => e.nome).toList(),
-                        box: obreiroBox,
-                        selected: (element) {
-                          obreiroController.text = element.trim();
-                        },
-                      ),
+                : Container(
+                  
+                  constraints: BoxConstraints(maxHeight: 50, maxWidth: mode == 2 ? 260 : 127,),
+                    child: ListField(
+                      icon: Icons.person,
+                      label: "Obreiro",
+                      controller: obreiroController,
+                      suggestions: obreiros.map((e) => e.nome).toList(),
+                      box: obreiroBox,
+                      selected: (element) {
+                        obreiroController.text = element.trim();
+                      },
                     ),
                   ),
             mode != 2
@@ -81,14 +62,14 @@ class _PastorDialogState extends State<PastorDialog> {
                     width: 0,
                   ),
             mode != 2
-                ? Flexible(
-                    child: InputField(
-                      error: true,
-                      controller: cpf,
-                      icon: Icons.payment,
-                      label: "CPF",
-                    ),
-                  )
+                ? Expanded(
+                  child: InputField(
+                    error: true,
+                    controller: cpf,
+                    icon: Icons.payment,
+                    label: "CPF",
+                  ),
+                )
                 : Container(
                     width: 0,
                   ),

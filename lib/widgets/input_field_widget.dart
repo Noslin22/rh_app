@@ -7,6 +7,7 @@ class InputField extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool readOnly;
+  final bool error;
   final FocusNode? focusNode;
   final VoidCallback? submit;
   const InputField({
@@ -15,17 +16,27 @@ class InputField extends StatelessWidget {
     required this.icon,
     required this.label,
     this.readOnly = false,
+    this.error = false,
     this.focusNode,
     this.submit,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       readOnly: readOnly,
       focusNode: focusNode,
-      onSubmitted: focusNode != null
+      validator: error
+          ? (value) {
+              if (value != null && value.isEmpty) {
+                return "Informe o $label";
+              } else {
+                return null;
+              }
+            }
+          : null,
+      onFieldSubmitted: focusNode != null
           ? (_) {
               int index = nodes.indexOf(focusNode!) + 1;
               if (nodes.length > index) {

@@ -169,9 +169,11 @@ class _HomePageState extends State<HomePage> {
         elevation: 0,
         actions: [
           Tooltip(
-            message: "Cadastrar Obreiro",
+            message: "Gerenciar Obreiro",
             child: IconButton(
               onPressed: () {
+                // pastorBox.close!();
+                // despesaBox.close!();
                 showDialog(
                   context: context,
                   builder: (context) => PastorDialog(),
@@ -214,6 +216,7 @@ class _HomePageState extends State<HomePage> {
                                       .data!.docs
                                       .map((e) => PastorModel.fromDocument(e))
                                       .toList();
+                                      obreiros = pastores;
                                   return ListField(
                                     icon: Icons.person,
                                     label: "Obreiro",
@@ -401,19 +404,23 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
                                 subtitle: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     ...List.generate(
                                       5,
                                       (index) => Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(fields[index],
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black,
-                                              ),),
+                                          Text(
+                                            fields[index],
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                          ),
                                           ...List.generate(values.length, (i) {
                                             ValueModel value = values[i];
                                             late String variable;
@@ -437,7 +444,9 @@ class _HomePageState extends State<HomePage> {
                                                 variable = "";
                                             }
                                             return Padding(
-                                              padding: const EdgeInsets.symmetric(vertical: 4),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 8),
                                               child: Text(
                                                 variable,
                                                 style: const TextStyle(
@@ -461,24 +470,115 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         ...List.generate(values.length,
                                             (index) {
-                                          return IconButton(
-                                            padding: EdgeInsets.zero,
-                                            onPressed: () {
-                                              despesa.values.removeAt(index);
-                                              if (despesa.values.isEmpty) {
-                                                list.removeWhere(
-                                                  (element) =>
-                                                      element.name ==
-                                                      despesa.name,
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 8),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                showModalBottomSheet(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(30),
+                                                            child: TextButton(
+                                                              child: const Text(
+                                                                  "Editar"),
+                                                              onPressed: () {
+                                                                pastorController
+                                                                        .text =
+                                                                    values[index]
+                                                                        .pastor;
+                                                                despesaController
+                                                                        .text =
+                                                                    despesa
+                                                                        .name;
+                                                                periodoController
+                                                                        .text =
+                                                                    values[index]
+                                                                        .periodo;
+                                                                apresentadoController
+                                                                    .text = values[
+                                                                        index]
+                                                                    .apresentado;
+                                                                cupomController
+                                                                        .text =
+                                                                    values[index]
+                                                                        .cupom;
+                                                                valorController
+                                                                        .text =
+                                                                    values[index]
+                                                                        .valor;
+                                                                valorRecusadoController
+                                                                        .text =
+                                                                    values[index]
+                                                                        .recusado;
+                                                                motivoController
+                                                                        .text =
+                                                                    values[index]
+                                                                        .motivo;
+                                                                despesa.values
+                                                                    .removeAt(
+                                                                        index);
+                                                                if (despesa
+                                                                    .values
+                                                                    .isEmpty) {
+                                                                  list.removeWhere((element) =>
+                                                                      element
+                                                                          .name ==
+                                                                      despesa
+                                                                          .name);
+                                                                }
+                                                                Navigator.pop(
+                                                                    context);
+                                                                setState(() {});
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          child: Container(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(30),
+                                                            child: TextButton(
+                                                              child: const Text(
+                                                                  "Excluir"),
+                                                              onPressed: () {
+                                                                despesa.values
+                                                                    .removeAt(
+                                                                        index);
+                                                                if (despesa
+                                                                    .values
+                                                                    .isEmpty) {
+                                                                  list.removeWhere((element) =>
+                                                                      element
+                                                                          .name ==
+                                                                      despesa
+                                                                          .name);
+                                                                }
+                                                                Navigator.pop(
+                                                                    context);
+                                                                setState(() {});
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
                                                 );
-                                              }
-                                              setState(() {});
-                                            },
-                                            icon: const Icon(
-                                              Icons.delete,
-                                              color: Colors.red,
+                                              },
+                                              child: const Icon(
+                                                Icons.menu,
+                                                size: 14,
+                                                color: Colors.black,
+                                              ),
                                             ),
-                                            iconSize: 14,
                                           );
                                         }),
                                       ],

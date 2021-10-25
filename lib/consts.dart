@@ -3,6 +3,8 @@ import 'package:field_suggestion/field_suggestion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 
+import 'models/pastor_model.dart';
+
 final FirebaseFirestore db = FirebaseFirestore.instance;
 
 final BoxController pastorBox = BoxController();
@@ -34,5 +36,7 @@ final TextEditingController valorRecusadoController = MoneyMaskedTextController(
   leftSymbol: "R\$",
 );
 final TextEditingController motivoController = TextEditingController();
+
+List<PastorModel> obreiros = [];
 
 List<FocusNode> nodes = List.generate(7, (_) => FocusNode());

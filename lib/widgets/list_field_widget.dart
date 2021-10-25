@@ -6,7 +6,7 @@ class ListField extends StatelessWidget {
     Key? key,
     required this.icon,
     required this.label,
-    required this.focusNode,
+    this.focusNode,
     required this.controller,
     required this.suggestions,
     this.searchBy = false,
@@ -15,7 +15,7 @@ class ListField extends StatelessWidget {
   }) : super(key: key);
   final IconData icon;
   final String label;
-  final FocusNode focusNode;
+  final FocusNode? focusNode;
   final TextEditingController controller;
   final List suggestions;
   final bool searchBy;
@@ -38,8 +38,8 @@ class ListField extends StatelessWidget {
       focusNode: focusNode,
       textController: controller,
       suggestionList: suggestions,
-      disabledDefaultOnIconTap: true,
-      disableItemTrailing: true,
+      disabledDefaultOnIconTap:true,
+      disableItemTrailing:true,
       searchBy: searchBy ? ["nome"] : null,
       boxController: box,
       onItemSelected: selected,

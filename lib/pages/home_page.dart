@@ -101,12 +101,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget generateTotal(int index) {
-    double parse(String value) {
-      value = value.replaceRange(0, 2, "");
-      value = value.replaceAll(".", "").replaceAll(",", ".");
-      return double.parse(value);
-    }
-
     double aceito = 0;
     double recusado = 0;
     double apresentado = 0;
@@ -192,7 +186,13 @@ class _HomePageState extends State<HomePage> {
               child: IconButton(
                 onPressed: () {
                   Printing.layoutPdf(onLayout: (format) {
-                    return buildPdf(despesas: list);
+                    return buildPdf(
+                      despesas: list,
+                      date: meses[int.parse(
+                              periodoController.text.split("/")[0])]! +
+                          " / " +
+                          periodoController.text.split("/")[1],
+                    );
                   });
                 },
                 icon: const Icon(Icons.print),
@@ -586,7 +586,7 @@ class _HomePageState extends State<HomePage> {
                                                 child: const Icon(
                                                   Icons.menu,
                                                   size: 14,
-                                                  color: Colors.black,
+                                                  color: Colors.orange,
                                                 ),
                                               ),
                                             );

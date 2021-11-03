@@ -17,14 +17,14 @@ class _PastorDialogState extends State<PastorDialog> {
   final TextEditingController cpf =
       MaskedTextController(mask: '000.000.000-00');
 
+    final TextEditingController obreiroController = TextEditingController();
+    final BoxController obreiroBox = BoxController();
   int mode = 0;
 
   List<String> modes = ["Adicionar", "Atualizar", "Excluir"];
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController obreiroController = TextEditingController();
-    final BoxController obreiroBox = BoxController();
     return GestureDetector(
       onTap: () => mode != 0 ? obreiroBox.close!() : null,
       child: AlertDialog(

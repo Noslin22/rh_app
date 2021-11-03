@@ -100,14 +100,13 @@ Future<Uint8List> buildPdf(
                 Text("Sistema de Conferência de Relatório - SCR"),
               ]),
           Divider(),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Text(date),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Obreiro: " + despesas[0].values[0].pastor),
+              Text(date),
+            ],
           ),
-          Text("Obreiro: " + despesas[0].values[0].pastor),
           Text("CPF: " + despesas[0].values[0].cpf),
           Divider(),
           SizedBox(height: 10),
@@ -172,7 +171,7 @@ Future<Uint8List> buildPdf(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 4),
                                   child: Text(
-                                    variable,
+                                    variable.isEmpty ? "----------" : variable,
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: PdfColors.black,

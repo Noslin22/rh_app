@@ -3,6 +3,7 @@ import 'package:field_suggestion/field_suggestion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 
+import 'models/despesa_model.dart';
 import 'models/pastor_model.dart';
 
 final Map<int, String> meses = {
@@ -53,6 +54,7 @@ final TextEditingController valorRecusadoController = MoneyMaskedTextController(
 final TextEditingController motivoController = TextEditingController();
 
 List<PastorModel> obreiros = [];
+List<String> despesasList = [];
 
 List<FocusNode> nodes = List.generate(7, (_) => FocusNode());
 

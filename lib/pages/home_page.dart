@@ -11,6 +11,7 @@ import 'package:rh_app/models/pastor_model.dart';
 import 'package:rh_app/models/value_model.dart';
 import 'package:rh_app/pages/pdf_page.dart';
 import 'package:rh_app/pdf/despesas_pdf.dart';
+import 'package:rh_app/widgets/despesa_dialog_widget.dart';
 import 'package:rh_app/widgets/input_field_widget.dart';
 import 'package:rh_app/widgets/list_field_widget.dart';
 import 'package:rh_app/widgets/pastor_dialog_widget.dart';
@@ -26,6 +27,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late TextEditingController cpfController;
   final Stream<QuerySnapshot> pastores = db.collection("pastores").snapshots();
+  final Stream<QuerySnapshot> despesas =
+      db.collection("despesas").orderBy("nome").snapshots();
 
   Uint8List? data;
   bool pdfSelected = false;
@@ -34,23 +37,18 @@ class _HomePageState extends State<HomePage> {
 
   List<String> fields = [
     "Apresentado",
-    "Cupom",
-    "Valor",
+    "N° Documento",
+    "Valor Aceito",
     "Valor Recusado",
     "Motivo",
   ];
 
-  List<String> despesas = [
-    "Veículo" " ",
-    "Internet" " ",
-    "Medicamento" " ",
-    "Equipamento Profissional" " ",
-    "Água/Esgoto" " ",
-    "Climatização" " ",
-    "Telefone" " ",
-  ];
-
-  void clearFields() {
+  void clearFields({bool all = false}) {
+    if (all) {
+      pastorController.clear();
+      cpf = "";
+      periodoController.clear();
+    }
     despesaController.clear();
     apresentadoController.text = "R\$0,00";
     cupomController.clear();
@@ -166,7 +164,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.indigo,
-          title: const Text("Conferência de Relatório"),
+          title: const Text("Sistema de Conferência de Relatório"),
           elevation: 0,
           actions: [
             Tooltip(
@@ -182,20 +180,47 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             Tooltip(
-              message: "Imprimir",
+              message: "Gerenciar Despesa",
               child: IconButton(
                 onPressed: () {
-                  Printing.layoutPdf(onLayout: (format) {
-                    return buildPdf(
-                      despesas: list,
-                      date: meses[int.parse(
-                              periodoController.text.split("/")[0])]! +
-                          " / " +
-                          periodoController.text.split("/")[1],
-                    );
-                  });
+                  showDialog(
+                    context: context,
+                    builder: (context) => const DespesaDialog(),
+                  );
                 },
-                icon: const Icon(Icons.print),
+                icon: const Icon(Icons.note_add),
+              ),
+            ),
+            Tooltip(
+              message: "Novo Relatório",
+              child: IconButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Novo Relatório"),
+                      content: const Text(
+                          "Deseja começar um novo relatório de outro obreiro"),
+                      actions: [
+                        ElevatedButton(
+                          onPressed: () {
+                            pdfSelected = false;
+                            clearFields(all: true);
+                            list = [];
+                            Navigator.pop(context);
+                            setState(() {});
+                          },
+                          child: const Text("Sim"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text("Não"),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add_chart),
               ),
             ),
           ],
@@ -293,18 +318,31 @@ class _HomePageState extends State<HomePage> {
                             width: 10,
                           ),
                           Expanded(
-                            child: ListField(
-                              focusNode: nodes[1],
-                              icon: Icons.sticky_note_2,
-                              label: "Despesa",
-                              selected: (despesa) {
-                                despesaController.text = despesa.trim();
-                                FocusScope.of(context).requestFocus(nodes[2]);
-                              },
-                              controller: despesaController,
-                              suggestions: despesas,
-                              box: despesaBox,
-                            ),
+                            child: StreamBuilder<QuerySnapshot>(
+                                stream: despesas,
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List<String> despesas = snapshot.data!.docs
+                                        .map((e) => e["nome"].toString() + " ")
+                                        .toList();
+                                    despesasList = despesas;
+                                    return ListField(
+                                      focusNode: nodes[1],
+                                      icon: Icons.sticky_note_2,
+                                      label: "Despesa",
+                                      selected: (despesa) {
+                                        despesaController.text = despesa.trim();
+                                        FocusScope.of(context)
+                                            .requestFocus(nodes[2]);
+                                      },
+                                      controller: despesaController,
+                                      suggestions: despesasList,
+                                      box: despesaBox,
+                                    );
+                                  } else {
+                                    return const LinearProgressIndicator();
+                                  }
+                                }),
                           ),
                         ],
                       ),
@@ -380,13 +418,17 @@ class _HomePageState extends State<HomePage> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          submit();
-                          if (formKey.currentState!.validate()) {
-                            clearFields();
-                            setState(() {});
-                          }
+                          Printing.layoutPdf(onLayout: (format) {
+                            return buildPdf(
+                              despesas: list,
+                              date: meses[int.parse(
+                                      periodoController.text.split("/")[0])]! +
+                                  " / " +
+                                  periodoController.text.split("/")[1],
+                            );
+                          });
                         },
-                        child: const Text("Inserir"),
+                        child: const Text("Imprimir"),
                       ),
                       const SizedBox(
                         height: 10,
@@ -583,10 +625,10 @@ class _HomePageState extends State<HomePage> {
                                                     },
                                                   );
                                                 },
-                                                child: const Icon(
+                                                child: Icon(
                                                   Icons.menu,
                                                   size: 14,
-                                                  color: Colors.orange,
+                                                  color: Colors.orange[800],
                                                 ),
                                               ),
                                             );
@@ -607,26 +649,34 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
+                const SizedBox(
+                  width: 16,
+                ),
                 Expanded(
-                  child: pdfSelected
-                      ? PdfView(
-                          data: data!,
-                        )
-                      : Center(
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              FilePickerResult? result =
-                                  await FilePicker.platform.pickFiles();
-                              if (result != null) {
-                                data = result.files.single.bytes!;
-                                setState(() {
-                                  pdfSelected = true;
-                                });
-                              }
-                            },
-                            child: const Text("Selecionar o PDF"),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: pdfSelected
+                        ? PdfView(
+                            data: data!,
+                          )
+                        : Center(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                FilePickerResult? result =
+                                    await FilePicker.platform.pickFiles();
+                                if (result != null) {
+                                  data = result.files.single.bytes!;
+                                  setState(() {
+                                    pdfSelected = true;
+                                  });
+                                }
+                              },
+                              child: const Text("Selecionar o PDF"),
+                            ),
                           ),
-                        ),
+                  ),
                 ),
               ],
             ),

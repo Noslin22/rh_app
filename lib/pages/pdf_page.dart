@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:native_pdf_view/native_pdf_view.dart' as pdf;
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class PdfView extends StatefulWidget {
   final Uint8List data;
@@ -16,7 +17,7 @@ class PdfView extends StatefulWidget {
 
 class _PdfViewState extends State<PdfView> {
   late PdfDocument document;
-  late pdf.PdfController pdfController;
+  final PdfViewerController controller = PdfViewerController();
   Uint8List? data;
   int currentPage = 1;
   int pages = 0;
@@ -67,32 +68,31 @@ class _PdfViewState extends State<PdfView> {
   @override
   void initState() {
     data = widget.data;
-    document = PdfDocument(inputBytes: data);
-    pdfController = pdf.PdfController(
-      document: pdf.PdfDocument.openData(data!),
-    );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    controller.jumpToPage(currentPage);
     return Column(
       children: [
-        Expanded(
-          child: pdf.PdfView(
-            controller: pdfController,
-            documentLoader: const CircularProgressIndicator(),
-            pageLoader: const CircularProgressIndicator(),
-            onPageChanged: (page) {
-              currentPage = page;
-              setState(() {});
-            },
-            onDocumentLoaded: (document) {
-              pages = pdfController.pagesCount;
-              setState(() {});
-            },
-          ),
-        ),
+        Flexible(
+          child: SfPdfViewer.memory(
+                  data!,
+                  controller: controller,
+                  onPageChanged: (page) {
+                    currentPage = page.newPageNumber;
+                    setState(() {});
+                  },
+                  onDocumentLoaded: (doc) {
+                    document = doc.document;
+                    pages = document.pages.count;
+                    setState(() {});
+                  },
+                  
+                ),
+        )
+        ,
         const SizedBox(
           height: 10,
         ),
@@ -105,45 +105,47 @@ class _PdfViewState extends State<PdfView> {
           children: [
             IconButton(
               onPressed: () {
-                pdfController.previousPage(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeIn,
-                );
+                controller.previousPage();
               },
               icon: const Icon(Icons.keyboard_arrow_left),
             ),
             IconButton(
               onPressed: () async {
-                PdfPage page = document.pages[pdfController.page - 1];
+                PdfPage page = document.pages[controller.pageNumber - 1];
                 PdfPageRotateAngle rotationAngle = page.rotation;
                 page.rotation = turn(rotation: rotationAngle, left: true);
                 List<int> bytes = document.save();
                 data = Uint8List.fromList(bytes);
-                pdfController.loadDocument(
-                    pdf.PdfDocument.openData(data!),
-                    initialPage: currentPage);
+                setState(() {});
               },
               icon: const Icon(Icons.rotate_left),
             ),
             IconButton(
               onPressed: () {
-                PdfPage page = document.pages[pdfController.page - 1];
+                controller.zoomLevel -= 0.5;
+              },
+              icon: const Icon(Icons.zoom_out),
+            ),
+            IconButton(
+              onPressed: () {
+                controller.zoomLevel += 0.5;
+              },
+              icon: const Icon(Icons.zoom_in),
+            ),
+            IconButton(
+              onPressed: () {
+                PdfPage page = document.pages[controller.pageNumber - 1];
                 PdfPageRotateAngle rotationAngle = page.rotation;
                 page.rotation = turn(rotation: rotationAngle);
                 List<int> bytes = document.save();
                 data = Uint8List.fromList(bytes);
-                pdfController.loadDocument(
-                    pdf.PdfDocument.openData(data!),
-                    initialPage: currentPage);
+                setState(() {});
               },
               icon: const Icon(Icons.rotate_right),
             ),
             IconButton(
               onPressed: () {
-                pdfController.nextPage(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeIn,
-                );
+                controller.nextPage();
               },
               icon: const Icon(Icons.keyboard_arrow_right),
             ),

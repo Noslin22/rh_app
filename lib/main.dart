@@ -4,7 +4,7 @@ import 'pages/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await Firebase.initializeApp();
   runApp(const MyApp());
 }
@@ -14,10 +14,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-            home: const HomePage(),
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData(primarySwatch: Colors.indigo),
-            title: "SCR Seven",
-          );
+      home: const HomePage(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.indigo),
+      title: "SCR Seven",
+    );
   }
 }

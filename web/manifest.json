@@ -1,11 +1,11 @@
 {
-    "name": "DP Seven",
-    "short_name": "DP7",
+    "name": "SCR Seven",
+    "short_name": "SCR7",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Sistema de Conferência de Relatório",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

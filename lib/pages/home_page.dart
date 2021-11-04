@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
@@ -11,6 +12,7 @@ import 'package:rh_app/models/pastor_model.dart';
 import 'package:rh_app/models/value_model.dart';
 import 'package:rh_app/pages/pdf_page.dart';
 import 'package:rh_app/pdf/despesas_pdf.dart';
+import 'package:rh_app/provider/auth_provider.dart';
 import 'package:rh_app/widgets/despesa_dialog_widget.dart';
 import 'package:rh_app/widgets/input_field_widget.dart';
 import 'package:rh_app/widgets/list_field_widget.dart';
@@ -26,6 +28,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late TextEditingController cpfController;
+  
+final TextEditingController pastorController = TextEditingController();
+final TextEditingController despesaController = TextEditingController();
   final Stream<QuerySnapshot> pastores = db.collection("pastores").snapshots();
   final Stream<QuerySnapshot> despesas =
       db.collection("despesas").orderBy("nome").snapshots();
@@ -167,6 +172,15 @@ class _HomePageState extends State<HomePage> {
           title: const Text("Sistema de Conferência de Relatório"),
           elevation: 0,
           actions: [
+            Tooltip(
+              message: "Sair",
+              child: IconButton(
+                onPressed: () {
+                  AuthProvider(auth: FirebaseAuth.instance).signOut();
+                },
+                icon: const Icon(Icons.vpn_key),
+              ),
+            ),
             Tooltip(
               message: "Gerenciar Obreiro",
               child: IconButton(

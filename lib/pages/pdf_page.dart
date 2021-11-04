@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:native_pdf_view/native_pdf_view.dart' as pdf;
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
@@ -84,6 +83,7 @@ class _PdfViewState extends State<PdfView> {
                     currentPage = page.newPageNumber;
                     setState(() {});
                   },
+                  pageLayoutMode: PdfPageLayoutMode.single,
                   onDocumentLoaded: (doc) {
                     document = doc.document;
                     pages = document.pages.count;

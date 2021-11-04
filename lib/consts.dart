@@ -29,8 +29,6 @@ final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
 String cpf = "";
 
-final TextEditingController pastorController = TextEditingController();
-final TextEditingController despesaController = TextEditingController();
 final TextEditingController periodoController = TextEditingController();
 final TextEditingController apresentadoController = MoneyMaskedTextController(
   decimalSeparator: ",",

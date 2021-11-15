@@ -80,7 +80,7 @@ class _DespesaDialogState extends State<DespesaDialog> {
                 
               } else {
                     db.collection("despesas").add({
-                      "nome": despesaController.text,
+                      "nome": despesaController.text.trim(),
                     });
               }
               Navigator.of(context).pop();

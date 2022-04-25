@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:printing/printing.dart';
+import 'package:rh_app/models/config.dart';
 import 'package:rh_app/models/despesa_model.dart';
 import 'package:rh_app/models/pastor_model.dart';
 import 'package:rh_app/models/value_model.dart';
@@ -31,7 +32,7 @@ class _HomePageState extends State<HomePage> {
   
 final TextEditingController pastorController = TextEditingController();
 final TextEditingController despesaController = TextEditingController();
-  final Stream<QuerySnapshot> pastores = db.collection("pastores").snapshots();
+  final Stream<QuerySnapshot> pastores = db.collection("pastores").where("campo", isEqualTo: campo,).snapshots();
   final Stream<QuerySnapshot> despesas =
       db.collection("despesas").orderBy("nome").snapshots();
 

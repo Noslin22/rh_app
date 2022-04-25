@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import '../consts.dart';
+import '../models/config.dart';
 
 class AuthProvider {
   final FirebaseAuth auth;
@@ -16,7 +17,6 @@ class AuthProvider {
 
   Future<User?> signIn({required String nome, required String senha}) async {
     final editNome = removerAcentos(nome).toLowerCase().replaceAll(" ", "_");
-    String? campo;
     try {
       await db.collection("users").where("nome", isEqualTo: nome).get().then(
             (value) =>

@@ -51,7 +51,7 @@ dependencies:
 
   #PDF
   syncfusion_flutter_pdf: ^19.3.45-beta
-  pdfx: ^2.0.1+1
+  syncfusion_flutter_pdfviewer: ^19.3.48-beta
   printing: ^5.6.0
 
 dev_dependencies:

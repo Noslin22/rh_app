@@ -9,7 +9,7 @@ import cloud_firestore
 import firebase_auth
 import firebase_core
 import printing
-import syncfusion_flutter_pdfviewer_macos
+import syncfusion_pdfviewer_macos
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FLTFirebaseFirestorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseFirestorePlugin"))

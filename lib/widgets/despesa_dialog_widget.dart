@@ -6,7 +6,7 @@ import 'input_field_widget.dart';
 import 'list_field_widget.dart';
 
 class DespesaDialog extends StatefulWidget {
-  const DespesaDialog({ Key? key }) : super(key: key);
+  const DespesaDialog({Key? key}) : super(key: key);
 
   @override
   _DespesaDialogState createState() => _DespesaDialogState();
@@ -15,8 +15,8 @@ class DespesaDialog extends StatefulWidget {
 class _DespesaDialogState extends State<DespesaDialog> {
   int mode = 0;
 
-    final TextEditingController despesaController = TextEditingController();
-    final BoxController despesaBox = BoxController();
+  final TextEditingController despesaController = TextEditingController();
+  final BoxController despesaBox = BoxController();
   List<String> modes = ["Adicionar", "Excluir"];
 
   @override
@@ -36,7 +36,7 @@ class _DespesaDialogState extends State<DespesaDialog> {
                     icon: Icons.sticky_note_2,
                     label: "Despesa",
                   )
-                : ListField(
+                : ListField<String>(
                     icon: Icons.person,
                     label: "Despesa",
                     controller: despesaController,
@@ -66,22 +66,21 @@ class _DespesaDialogState extends State<DespesaDialog> {
           ),
           ElevatedButton(
             onPressed: () {
-                if (mode == 1) {
-                  db
-                      .collection("despesas")
-                      .where("nome", isEqualTo: despesaController.text)
-                      .get()
-                      .then(
-                        (value) => db
-                            .collection("despesas")
-                            .doc(value.docs.single.id)
-                            .delete(),
-                      );
-                
+              if (mode == 1) {
+                db
+                    .collection("despesas")
+                    .where("nome", isEqualTo: despesaController.text)
+                    .get()
+                    .then(
+                      (value) => db
+                          .collection("despesas")
+                          .doc(value.docs.single.id)
+                          .delete(),
+                    );
               } else {
-                    db.collection("despesas").add({
-                      "nome": despesaController.text.trim(),
-                    });
+                db.collection("despesas").add({
+                  "nome": despesaController.text.trim(),
+                });
               }
               Navigator.of(context).pop();
             },

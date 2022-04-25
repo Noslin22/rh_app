@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import '../consts.dart';
-import '../models/config.dart';
 
 class AuthProvider {
   final FirebaseAuth auth;
@@ -14,6 +13,7 @@ class AuthProvider {
   set error(FirebaseAuthException? error) => errorNotifier.value = error;
 
   Stream<User?> get user => auth.authStateChanges();
+  String? campo;
 
   Future<User?> signIn({required String nome, required String senha}) async {
     final editNome = removerAcentos(nome).toLowerCase().replaceAll(" ", "_");

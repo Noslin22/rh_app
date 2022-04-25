@@ -9,6 +9,7 @@ class InputField extends StatelessWidget {
   final bool readOnly;
   final bool error;
   final FocusNode? focusNode;
+  final String? initialValue;
   final VoidCallback? submit;
   const InputField({
     Key? key,
@@ -18,6 +19,7 @@ class InputField extends StatelessWidget {
     this.readOnly = false,
     this.error = false,
     this.focusNode,
+    this.initialValue,
     this.submit,
   }) : super(key: key);
 
@@ -26,6 +28,7 @@ class InputField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       readOnly: readOnly,
+      initialValue: initialValue,
       focusNode: focusNode,
       validator: error
           ? (value) {

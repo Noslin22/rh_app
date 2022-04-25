@@ -1,9 +1,13 @@
 import 'package:field_suggestion/field_suggestion.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:rh_app/models/pastor_model.dart';
 import 'package:rh_app/widgets/list_field_widget.dart';
 
 import '../consts.dart';
+import '../provider/auth_provider.dart';
 import 'input_field_widget.dart';
 
 class PastorDialog extends StatefulWidget {
@@ -17,8 +21,9 @@ class _PastorDialogState extends State<PastorDialog> {
   final TextEditingController cpf =
       MaskedTextController(mask: '000.000.000-00');
 
-    final TextEditingController obreiroController = TextEditingController();
-    final BoxController obreiroBox = BoxController();
+  final TextEditingController obreiroController = TextEditingController();
+  final TextEditingController campoController = TextEditingController();
+  final BoxController obreiroBox = BoxController();
   int mode = 0;
 
   List<String> modes = ["Adicionar", "Atualizar", "Excluir"];
@@ -40,14 +45,17 @@ class _PastorDialogState extends State<PastorDialog> {
                     icon: Icons.person,
                     label: "Obreiro",
                   )
-                : ListField(
+                : ListField<PastorModel>(
                     icon: Icons.person,
                     label: "Obreiro",
                     controller: obreiroController,
-                    suggestions: obreiros.map((e) => e.nome).toList(),
+                    suggestions: obreiros,
                     box: obreiroBox,
+                    searchBy: "nome",
                     selected: (element) {
-                      obreiroController.text = element.trim();
+                      obreiroController.text = element.nome.trim();
+                      cpf.text = element.cpf.trim();
+                      campoController.text = element.campo.trim();
                     },
                   ),
             mode != 2
@@ -61,6 +69,21 @@ class _PastorDialogState extends State<PastorDialog> {
                     controller: cpf,
                     icon: Icons.payment,
                     label: "CPF",
+                  )
+                : Container(
+                    width: 0,
+                  ),
+            mode != 2
+                ? const SizedBox(height: 10)
+                : Container(
+                    width: 0,
+                  ),
+            mode != 2
+                ? InputField(
+                    error: true,
+                    controller: campoController,
+                    icon: Icons.apartment,
+                    label: "Campo",
                   )
                 : Container(
                     width: 0,
@@ -104,6 +127,7 @@ class _PastorDialogState extends State<PastorDialog> {
                     db.collection("pastores").add({
                       "nome": obreiroController.text,
                       "cpf": cpf.text,
+                      "campo": campoController.text,
                     });
                     break;
                   case 1:
@@ -118,6 +142,7 @@ class _PastorDialogState extends State<PastorDialog> {
                           .update({
                         "nome": obreiroController.text,
                         "cpf": cpf.text,
+                        "campo": campoController.text,
                       });
                     });
                     break;

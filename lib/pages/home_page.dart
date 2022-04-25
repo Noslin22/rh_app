@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:printing/printing.dart';
-import 'package:rh_app/models/config.dart';
 import 'package:rh_app/models/despesa_model.dart';
 import 'package:rh_app/models/pastor_model.dart';
 import 'package:rh_app/models/value_model.dart';
@@ -29,10 +28,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late TextEditingController cpfController;
-  
-final TextEditingController pastorController = TextEditingController();
-final TextEditingController despesaController = TextEditingController();
-  final Stream<QuerySnapshot> pastores = db.collection("pastores").where("campo", isEqualTo: campo,).snapshots();
+  AuthProvider provider = AuthProvider(auth: FirebaseAuth.instance);
+  String? nome;
+
+  final TextEditingController pastorController = TextEditingController();
+  final TextEditingController despesaController = TextEditingController();
+  final Stream<QuerySnapshot> pastores = db.collection("pastores").snapshots();
   final Stream<QuerySnapshot> despesas =
       db.collection("despesas").orderBy("nome").snapshots();
 
@@ -40,6 +41,19 @@ final TextEditingController despesaController = TextEditingController();
   bool pdfSelected = false;
 
   List<DespesaModel> list = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    List<String> nomes =
+        provider.auth.currentUser!.email!.replaceAll("_", " ").split(" ");
+    List<String> first = nomes[0].split("");
+    List<String> last = nomes[1].split("@")[0].split("");
+    first = [first.first.toUpperCase(), ...first.sublist(1, first.length)];
+    last = [last.first.toUpperCase(), ...last.sublist(1, last.length)];
+    nome = "${first.join()} ${last.join()}";
+  }
 
   List<String> fields = [
     "Apresentado",
@@ -253,56 +267,80 @@ final TextEditingController despesaController = TextEditingController();
                         children: [
                           Expanded(
                             flex: 6,
-                            child: StreamBuilder<QuerySnapshot>(
-                                stream: pastores,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    List<PastorModel> pastores = snapshot
-                                        .data!.docs
-                                        .map((e) => PastorModel.fromDocument(e))
-                                        .toList();
-                                    obreiros = pastores;
-                                    return ListField(
-                                      icon: Icons.person,
-                                      label: "Obreiro",
-                                      focusNode: nodes[0],
-                                      controller: pastorController,
-                                      suggestions: pastores,
-                                      searchBy: true,
-                                      box: pastorBox,
-                                      selected: (pastor) {
-                                        setState(() {
-                                          cpf = pastor['cpf'];
-                                        });
-                                        pastorController.text =
-                                            pastor["nome"].trim();
-                                        FocusScope.of(context)
-                                            .requestFocus(nodes[1]);
-                                        showMonthPicker(
-                                          locale: const Locale("pt", "BR"),
-                                          context: context,
-                                          initialDate: DateTime.now(),
-                                          firstDate: DateTime(
-                                            DateTime.now().year,
-                                          ),
-                                          lastDate:
-                                              DateTime(DateTime.now().year, 12),
-                                        )
-                                            .then(
-                                              (value) => periodoController
-                                                      .text =
-                                                  "${value!.month < 10 ? "0" + value.month.toString() : value.month.toString()}/${value.year.toString()}",
-                                            )
-                                            .then(
-                                              (_) => FocusScope.of(context)
-                                                  .requestFocus(nodes[1]),
-                                            );
-                                      },
-                                    );
-                                  } else {
-                                    return const LinearProgressIndicator();
-                                  }
-                                }),
+                            child: StreamBuilder<String?>(
+                              stream: db
+                                  .collection("users")
+                                  .where("nome", isEqualTo: nome)
+                                  .get()
+                                  .then(
+                                (value) {
+                                  provider.campo =
+                                      value.docs.single["campo"].toString();
+                                  return value.docs.single["campo"].toString();
+                                },
+                              ).asStream(),
+                              builder: (_, campo) {
+                                if (campo.hasData) {
+                                  return StreamBuilder<QuerySnapshot>(
+                                      stream: pastores,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          List<PastorModel> pastores = snapshot
+                                              .data!.docs
+                                              .map((e) =>
+                                                  PastorModel.fromDocument(e))
+                                              .where((element) =>
+                                                  element.campo == campo.data)
+                                              .toList();
+                                          obreiros = pastores;
+                                          return ListField<PastorModel>(
+                                            icon: Icons.person,
+                                            label: "Obreiro",
+                                            focusNode: nodes[0],
+                                            controller: pastorController,
+                                            suggestions: pastores,
+                                            searchBy: "nome",
+                                            box: pastorBox,
+                                            selected: (pastor) {
+                                              setState(() {
+                                                cpf = pastor.cpf;
+                                              });
+                                              pastorController.text =
+                                                  pastor.nome.trim();
+                                              FocusScope.of(context)
+                                                  .requestFocus(nodes[1]);
+                                              showMonthPicker(
+                                                locale:
+                                                    const Locale("pt", "BR"),
+                                                context: context,
+                                                initialDate: DateTime.now(),
+                                                firstDate: DateTime(
+                                                  DateTime.now().year,
+                                                ),
+                                                lastDate: DateTime(
+                                                    DateTime.now().year, 12),
+                                              )
+                                                  .then(
+                                                    (value) => periodoController
+                                                            .text =
+                                                        "${value!.month < 10 ? "0" + value.month.toString() : value.month.toString()}/${value.year.toString()}",
+                                                  )
+                                                  .then(
+                                                    (_) => FocusScope.of(
+                                                            context)
+                                                        .requestFocus(nodes[1]),
+                                                  );
+                                            },
+                                          );
+                                        } else {
+                                          return const LinearProgressIndicator();
+                                        }
+                                      });
+                                } else {
+                                  return const LinearProgressIndicator();
+                                }
+                              },
+                            ),
                           ),
                           const SizedBox(
                             width: 10,
@@ -341,7 +379,7 @@ final TextEditingController despesaController = TextEditingController();
                                         .map((e) => e["nome"].toString() + " ")
                                         .toList();
                                     despesasList = despesas;
-                                    return ListField(
+                                    return ListField<String>(
                                       focusNode: nodes[1],
                                       icon: Icons.sticky_note_2,
                                       label: "Despesa",

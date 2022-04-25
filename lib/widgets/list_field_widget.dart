@@ -1,7 +1,9 @@
 import 'package:field_suggestion/field_suggestion.dart';
 import 'package:flutter/material.dart';
+import 'package:rh_app/models/despesa_model.dart';
+import 'package:rh_app/models/pastor_model.dart';
 
-class ListField extends StatelessWidget {
+class ListField<T> extends StatelessWidget {
   const ListField({
     Key? key,
     required this.icon,
@@ -9,7 +11,7 @@ class ListField extends StatelessWidget {
     this.focusNode,
     required this.controller,
     required this.suggestions,
-    this.searchBy = false,
+    this.searchBy,
     required this.box,
     required this.selected,
   }) : super(key: key);
@@ -17,10 +19,10 @@ class ListField extends StatelessWidget {
   final String label;
   final FocusNode? focusNode;
   final TextEditingController controller;
-  final List suggestions;
-  final bool searchBy;
+  final List<T> suggestions;
+  final String? searchBy;
   final BoxController box;
-  final Function(dynamic) selected;
+  final Function(T) selected;
 
   @override
   Widget build(BuildContext context) {
@@ -35,15 +37,20 @@ class ListField extends StatelessWidget {
           ],
         ),
       ),
-      
       focusNode: focusNode,
       textController: controller,
       suggestionList: suggestions,
-      disabledDefaultOnIconTap:true,
-      disableItemTrailing:true,
-      searchBy: searchBy ? ["nome"] : null,
+      disabledDefaultOnIconTap: true,
+      disableItemTrailing: true,
+      searchBy: searchBy == null ? null : [searchBy!],
       boxController: box,
-      onItemSelected: selected,
+      onItemSelected: (e) {
+        if (T == PastorModel) {
+          selected(PastorModel.fromMap(e) as T);
+        } else {
+          selected(e);
+        }
+      },
     );
   }
 }

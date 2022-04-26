@@ -202,7 +202,9 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () {
                   showDialog(
                     context: context,
-                    builder: (context) => const PastorDialog(),
+                    builder: (context) => PastorDialog(
+                      provider: provider,
+                    ),
                   );
                 },
                 icon: const Icon(Icons.person),

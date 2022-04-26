@@ -1,8 +1,8 @@
 import 'package:field_suggestion/field_suggestion.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+
 import 'package:rh_app/models/pastor_model.dart';
 import 'package:rh_app/widgets/list_field_widget.dart';
 
@@ -11,7 +11,11 @@ import '../provider/auth_provider.dart';
 import 'input_field_widget.dart';
 
 class PastorDialog extends StatefulWidget {
-  const PastorDialog({Key? key}) : super(key: key);
+  const PastorDialog({
+    Key? key,
+    required this.provider,
+  }) : super(key: key);
+  final AuthProvider provider;
 
   @override
   State<PastorDialog> createState() => _PastorDialogState();
@@ -25,6 +29,7 @@ class _PastorDialogState extends State<PastorDialog> {
   final TextEditingController campoController = TextEditingController();
   final BoxController obreiroBox = BoxController();
   int mode = 0;
+
 
   List<String> modes = ["Adicionar", "Atualizar", "Excluir"];
 
@@ -94,6 +99,8 @@ class _PastorDialogState extends State<PastorDialog> {
           ElevatedButton(
             onPressed: () {
               obreiroController.text = "";
+              cpf.text = "";
+              campoController.text = "";
               if (mode != 2) {
                 mode += 1;
               } else {
@@ -108,19 +115,25 @@ class _PastorDialogState extends State<PastorDialog> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (cpf.text == "") {
-                if (mode == 2) {
-                  db
-                      .collection("pastores")
-                      .where("nome", isEqualTo: obreiroController.text)
-                      .get()
-                      .then(
-                        (value) => db
-                            .collection("pastores")
-                            .doc(value.docs.single.id)
-                            .delete(),
-                      );
-                }
+              if (mode == 2) {
+                db
+                    .collection("pastores")
+                    .where("nome", isEqualTo: obreiroController.text)
+                    .get()
+                    .then(
+                  (value) {
+                    print(value.docs.map((e) => e.data()));
+                    print(widget.provider.campo);
+                    db
+                        .collection("pastores")
+                        .doc(value.docs
+                            .where(
+                                (element) => element["campo"] == widget.provider.campo)
+                            .single
+                            .id)
+                        .delete();
+                  },
+                );
               } else {
                 switch (mode) {
                   case 0:

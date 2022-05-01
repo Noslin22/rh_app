@@ -6,11 +6,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:native_pdf_renderer/native_pdf_renderer.dart';
 import 'package:printing/printing.dart';
 import 'package:rh_app/models/despesa_model.dart';
 import 'package:rh_app/models/pastor_model.dart';
 import 'package:rh_app/models/value_model.dart';
-import 'package:rh_app/pages/pdf_page.dart';
+import 'package:rh_app/pages/pdf_page.dart' as pdf;
 import 'package:rh_app/pdf/despesas_pdf.dart';
 import 'package:rh_app/provider/auth_provider.dart';
 import 'package:rh_app/widgets/despesa_dialog_widget.dart';
@@ -30,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   late TextEditingController cpfController;
   AuthProvider provider = AuthProvider(auth: FirebaseAuth.instance);
   String? nome;
+  List<String> cpfs = ["", ""];
 
   final TextEditingController pastorController = TextEditingController();
   final TextEditingController despesaController = TextEditingController();
@@ -57,7 +59,7 @@ class _HomePageState extends State<HomePage> {
 
   List<String> fields = [
     "Apresentado",
-    "N° Documento",
+    "N° Documento - Data",
     "Valor Aceito",
     "Valor Recusado",
     "Motivo",
@@ -66,12 +68,14 @@ class _HomePageState extends State<HomePage> {
   void clearFields({bool all = false}) {
     if (all) {
       pastorController.clear();
+      cpfs = ["", ""];
       cpf = "";
       periodoController.clear();
     }
     despesaController.clear();
     apresentadoController.text = "R\$0,00";
     cupomController.clear();
+    dateController.clear();
     valorController.text = "R\$0,00";
     valorRecusadoController.text = "R\$0,00";
     motivoController.clear();
@@ -94,6 +98,7 @@ class _HomePageState extends State<HomePage> {
                 valor: valorController.text,
                 recusado: valorRecusadoController.text,
                 motivo: motivoController.text,
+                date: dateController.text,
               ),
             );
       } else {
@@ -110,6 +115,7 @@ class _HomePageState extends State<HomePage> {
                 valor: valorController.text,
                 recusado: valorRecusadoController.text,
                 motivo: motivoController.text,
+                date: dateController.text,
               ),
             ],
           ),
@@ -173,7 +179,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    cpfController = TextEditingController(text: cpf);
+    cpfController = TextEditingController(text: cpfs[0]);
     return GestureDetector(
       onTap: () {
         pastorBox.close!();
@@ -276,9 +282,8 @@ class _HomePageState extends State<HomePage> {
                                   .get()
                                   .then(
                                 (value) {
-                                  provider.campo =
+                                  return provider.campo =
                                       value.docs.single["campo"].toString();
-                                  return value.docs.single["campo"].toString();
                                 },
                               ).asStream(),
                               builder: (_, campo) {
@@ -291,9 +296,9 @@ class _HomePageState extends State<HomePage> {
                                               .data!.docs
                                               .map((e) =>
                                                   PastorModel.fromDocument(e))
-                                              .where((element) =>
-                                                  element.campo == campo.data)
-                                              .toList();
+                                              .where((element) {
+                                            return element.campo == campo.data;
+                                          }).toList();
                                           obreiros = pastores;
                                           return ListField<PastorModel>(
                                             icon: Icons.person,
@@ -305,7 +310,8 @@ class _HomePageState extends State<HomePage> {
                                             box: pastorBox,
                                             selected: (pastor) {
                                               setState(() {
-                                                cpf = pastor.cpf;
+                                                cpfs[0] = pastor.cpf + " ";
+                                                cpfs[1] = pastor.cpf2 + " ";
                                               });
                                               pastorController.text =
                                                   pastor.nome.trim();
@@ -321,17 +327,36 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                                 lastDate: DateTime(
                                                     DateTime.now().year, 12),
-                                              )
-                                                  .then(
-                                                    (value) => periodoController
-                                                            .text =
-                                                        "${value!.month < 10 ? "0" + value.month.toString() : value.month.toString()}/${value.year.toString()}",
-                                                  )
-                                                  .then(
-                                                    (_) => FocusScope.of(
-                                                            context)
-                                                        .requestFocus(nodes[1]),
-                                                  );
+                                              ).then(
+                                                (value) {
+                                                  if (value == null) {
+                                                    Builder(
+                                                      builder: (context) {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text(
+                                                              "Selecione um mês",
+                                                            ),
+                                                            duration: Duration(
+                                                                seconds: 2),
+                                                          ),
+                                                        );
+                                                        return Container();
+                                                      },
+                                                    );
+                                                  } else {
+                                                    periodoController.text =
+                                                        "${value.month < 10 ? "0" + value.month.toString() : value.month.toString()}/${value.year.toString()}";
+                                                  }
+                                                },
+                                              ).then(
+                                                (_) {
+                                                  FocusScope.of(context)
+                                                      .requestFocus(nodes[1]);
+                                                },
+                                              );
                                             },
                                           );
                                         } else {
@@ -349,12 +374,53 @@ class _HomePageState extends State<HomePage> {
                           ),
                           Expanded(
                             flex: 2,
-                            child: InputField(
-                              icon: Icons.payment,
-                              controller: cpfController,
-                              label: "CPF",
-                              readOnly: true,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                top: 4,
+                                left: 4,
+                                bottom: 4,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
+                                child: DropdownButton<String>(
+                                  items: cpfs
+                                      .map(
+                                        (e) => DropdownMenuItem<String>(
+                                          child: Text(e),
+                                          value: e,
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: cpfs.first == "" ? null : (_) {},
+                                  icon: Container(),
+                                  hint: Row(
+                                    children: const [
+                                      Icon(Icons.payment),
+                                      Text("CPF"),
+                                    ],
+                                  ),
+                                  value: cpfs[0] == "" ? null : cpfs[0],
+                                  underline: Container(),
+                                  borderRadius: BorderRadius.circular(10),
+                                  iconDisabledColor: Colors.black,
+                                ),
+                              ),
                             ),
+                            // ListField<String>(
+                            //   icon: Icons.payment,
+                            //   label: "CPF",
+                            //   controller: cpfController,
+                            //   suggestions: cpfs,
+                            //   box: cpfBox,
+                            //   selected: (s) {
+                            //     s = s;
+                            //   },
+                            // ),
                           ),
                         ],
                       ),
@@ -364,40 +430,88 @@ class _HomePageState extends State<HomePage> {
                       Row(
                         children: [
                           Expanded(
-                              child: InputField(
-                            controller: periodoController,
-                            icon: Icons.today,
-                            label: "Período",
-                          )),
+                            child: InputField(
+                              controller: periodoController,
+                              icon: Icons.event,
+                              label: "Período",
+                            ),
+                          ),
                           const SizedBox(
                             width: 10,
                           ),
                           Expanded(
+                            flex: 2,
                             child: StreamBuilder<QuerySnapshot>(
-                                stream: despesas,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    List<String> despesas = snapshot.data!.docs
-                                        .map((e) => e["nome"].toString() + " ")
-                                        .toList();
-                                    despesasList = despesas;
-                                    return ListField<String>(
-                                      focusNode: nodes[1],
-                                      icon: Icons.sticky_note_2,
-                                      label: "Despesa",
-                                      selected: (despesa) {
-                                        despesaController.text = despesa.trim();
-                                        FocusScope.of(context)
-                                            .requestFocus(nodes[2]);
-                                      },
-                                      controller: despesaController,
-                                      suggestions: despesasList,
-                                      box: despesaBox,
-                                    );
-                                  } else {
-                                    return const LinearProgressIndicator();
-                                  }
-                                }),
+                              stream: despesas,
+                              builder: (_, snapshot) {
+                                if (snapshot.hasData) {
+                                  List<String> despesas = snapshot.data!.docs
+                                      .map((e) => e["nome"].toString() + " ")
+                                      .toList();
+                                  despesasList = despesas;
+                                  return ListField<String>(
+                                    focusNode: nodes[1],
+                                    icon: Icons.sticky_note_2,
+                                    label: "Despesa",
+                                    selected: (despesa) {
+                                      despesaController.text = despesa.trim();
+                                      showDatePicker(
+                                        locale: const Locale("pt", "BR"),
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime(
+                                          DateTime.now().year,
+                                        ),
+                                        lastDate:
+                                            DateTime(DateTime.now().year, 12),
+                                      ).then(
+                                        (value) {
+                                          if (value == null) {
+                                            Builder(
+                                              builder: (context) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Selecione uma data"),
+                                                    duration:
+                                                        Duration(seconds: 2),
+                                                  ),
+                                                );
+                                                return Container();
+                                              },
+                                            );
+                                          } else {
+                                            dateController.text =
+                                                "${value.day < 10 ? "0${value.day}" : value.day}/${value.month < 10 ? "0${value.month}" : value.month}/${value.year}";
+                                          }
+                                        },
+                                      ).then(
+                                        (_) {
+                                          FocusScope.of(context)
+                                              .requestFocus(nodes[2]);
+                                        },
+                                      );
+                                    },
+                                    controller: despesaController,
+                                    suggestions: despesasList,
+                                    box: despesaBox,
+                                  );
+                                } else {
+                                  return const LinearProgressIndicator();
+                                }
+                              },
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            child: InputField(
+                              controller: dateController,
+                              icon: Icons.calendar_today,
+                              label: "Data",
+                            ),
                           ),
                         ],
                       ),
@@ -420,7 +534,7 @@ class _HomePageState extends State<HomePage> {
                           Expanded(
                             child: InputField(
                               icon: Icons.payments,
-                              label: fields[1],
+                              label: "N° Documento",
                               controller: cupomController,
                               focusNode: nodes[3],
                             ),
@@ -533,7 +647,8 @@ class _HomePageState extends State<HomePage> {
                                                   variable = value.apresentado;
                                                   break;
                                                 case 1:
-                                                  variable = value.cupom;
+                                                  variable =
+                                                      "${value.cupom} - ${value.date}";
                                                   break;
                                                 case 2:
                                                   variable = value.valor;
@@ -713,7 +828,7 @@ class _HomePageState extends State<HomePage> {
                         border: Border.all(),
                         borderRadius: BorderRadius.circular(10)),
                     child: pdfSelected
-                        ? PdfView(
+                        ? pdf.PdfView(
                             data: data!,
                           )
                         : Center(

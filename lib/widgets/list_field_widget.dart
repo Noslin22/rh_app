@@ -22,7 +22,7 @@ class ListField<T> extends StatelessWidget {
   final List<T> suggestions;
   final String? searchBy;
   final BoxController box;
-  final Function(T) selected;
+  final void Function(T) selected;
 
   @override
   Widget build(BuildContext context) {

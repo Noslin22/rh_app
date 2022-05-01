@@ -24,6 +24,8 @@ class PastorDialog extends StatefulWidget {
 class _PastorDialogState extends State<PastorDialog> {
   final TextEditingController cpf =
       MaskedTextController(mask: '000.000.000-00');
+  final TextEditingController cpf2 =
+      MaskedTextController(mask: '000.000.000-00');
 
   final TextEditingController obreiroController = TextEditingController();
   final TextEditingController campoController = TextEditingController();
@@ -60,6 +62,7 @@ class _PastorDialogState extends State<PastorDialog> {
                     selected: (element) {
                       obreiroController.text = element.nome.trim();
                       cpf.text = element.cpf.trim();
+                      cpf2.text = element.cpf2.trim();
                       campoController.text = element.campo.trim();
                     },
                   ),
@@ -79,11 +82,21 @@ class _PastorDialogState extends State<PastorDialog> {
                     width: 0,
                   ),
             mode != 2
-                ? const SizedBox(height: 10)
+                ? InputField(
+                    error: true,
+                    controller: cpf2,
+                    icon: Icons.payment,
+                    label: "CPF Cônjuge",
+                  )
                 : Container(
                     width: 0,
                   ),
             mode != 2
+                ? const SizedBox(height: 10)
+                : Container(
+                    width: 0,
+                  ),
+            mode == 1
                 ? InputField(
                     error: true,
                     controller: campoController,
@@ -122,8 +135,6 @@ class _PastorDialogState extends State<PastorDialog> {
                     .get()
                     .then(
                   (value) {
-                    print(value.docs.map((e) => e.data()));
-                    print(widget.provider.campo);
                     db
                         .collection("pastores")
                         .doc(value.docs
@@ -140,7 +151,8 @@ class _PastorDialogState extends State<PastorDialog> {
                     db.collection("pastores").add({
                       "nome": obreiroController.text,
                       "cpf": cpf.text,
-                      "campo": campoController.text,
+                      "cpf2": cpf2.text,
+                      "campo": widget.provider.campo,
                     });
                     break;
                   case 1:
@@ -155,6 +167,7 @@ class _PastorDialogState extends State<PastorDialog> {
                           .update({
                         "nome": obreiroController.text,
                         "cpf": cpf.text,
+                        "cpf2": cpf2.text,
                         "campo": campoController.text,
                       });
                     });

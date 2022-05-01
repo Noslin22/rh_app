@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:field_suggestion/field_suggestion.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
-
-import 'models/despesa_model.dart';
 import 'models/pastor_model.dart';
 
 final Map<int, String> meses = {
@@ -25,11 +23,13 @@ final FirebaseFirestore db = FirebaseFirestore.instance;
 
 final BoxController pastorBox = BoxController();
 final BoxController despesaBox = BoxController();
+final BoxController cpfBox = BoxController();
 final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
 String cpf = "";
 
 final TextEditingController periodoController = TextEditingController();
+final TextEditingController dateController = TextEditingController();
 final TextEditingController apresentadoController = MoneyMaskedTextController(
   decimalSeparator: ",",
   thousandSeparator: ".",

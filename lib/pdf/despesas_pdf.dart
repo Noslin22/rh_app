@@ -14,7 +14,7 @@ Future<Uint8List> buildPdf(
   final ByteData image = await rootBundle.load("images/iasd-logo.png");
   final List<String> fields = [
     "Apresentado",
-    "Cupom",
+    "Cupom - Data",
     "Valor",
     "Valor Recusado",
     "Motivo",
@@ -115,9 +115,8 @@ Future<Uint8List> buildPdf(
             (index) {
               DespesaModel despesa = despesas[index];
               List<ValueModel> values = despesa.values;
-              return Flex(
+              return Column(
                 mainAxisSize: MainAxisSize.min,
-                direction: Axis.vertical,
                 children: [
                   Container(
                     width: double.maxFinite,
@@ -153,7 +152,7 @@ Future<Uint8List> buildPdf(
                                     variable = value.apresentado;
                                     break;
                                   case 1:
-                                    variable = value.cupom;
+                                    variable = "${value.cupom} - ${value.date}";
                                     break;
                                   case 2:
                                     variable = value.valor;

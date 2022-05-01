@@ -7,6 +7,7 @@ class ValueModel {
   final String cpf;
   final String periodo;
   final String motivo;
+  final String date;
 
   ValueModel({
     required this.apresentado,
@@ -17,10 +18,11 @@ class ValueModel {
     required this.cpf,
     required this.periodo,
     required this.motivo,
+    required this.date,
   });
 
   @override
   String toString() {
-    return 'ValueModel(apresentado: $apresentado, cupom: $cupom, valor: $valor, recusado: $recusado, motivo: $motivo, pastor: $pastor, cpf: $cpf, periodo: $periodo)';
+    return 'ValueModel(apresentado: $apresentado, cupom: $cupom, valor: $valor, recusado: $recusado, motivo: $motivo, pastor: $pastor, cpf: $cpf, periodo: $periodo, data: $date)';
   }
 }

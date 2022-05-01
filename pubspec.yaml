@@ -35,7 +35,7 @@ dependencies:
   cupertino_icons:
 
   #File
-  file_picker:
+  file_picker: ^4.0.1
 
   #Dialog
   month_picker_dialog: ^0.4.0
@@ -53,6 +53,11 @@ dependencies:
   syncfusion_flutter_pdf: ^20.1.50-beta
   syncfusion_flutter_pdfviewer: ^20.1.50-beta
   printing: ^5.6.0
+  photo_view: ^0.13.0
+  native_pdf_renderer: ^5.0.0+1
+  flutter_localizations: 
+    sdk: flutter
+    version: ^0.0.0
 
 dev_dependencies:
   flutter_test:

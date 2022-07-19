@@ -38,6 +38,7 @@ class AuthProvider {
     } catch (e) {
       error = e as FirebaseAuthException;
     }
+    return null;
   }
 
   String removerAcentos(String texto) {

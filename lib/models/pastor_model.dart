@@ -47,4 +47,9 @@ class PastorModel {
 
   factory PastorModel.fromJson(String source) =>
       PastorModel.fromMap(json.decode(source));
+
+  @override
+  String toString() {
+    return nome;
+  }
 }

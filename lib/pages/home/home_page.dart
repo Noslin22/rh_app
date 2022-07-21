@@ -12,6 +12,7 @@ import 'package:rh_app/widgets/input_field_widget.dart';
 import 'package:rh_app/widgets/list_field_widget.dart';
 
 import '../../consts.dart';
+import '../../models/despesa_model.dart';
 import 'core/function.dart';
 import 'core/variables.dart';
 
@@ -194,9 +195,10 @@ class _HomePageState extends State<HomePage> {
                                 return ListField<String>(
                                   focusNode: nodes[1],
                                   icon: Icons.sticky_note_2,
+                                  controller: despesaController,
+                                  suggestions: despesasList,
                                   label: "Despesa",
-                                  selected: (despesa) {
-                                    despesaController.text = despesa.trim();
+                                  selected: (value) {
                                     showDatePicker(
                                       locale: const Locale("pt", "BR"),
                                       context: context,
@@ -235,8 +237,6 @@ class _HomePageState extends State<HomePage> {
                                       },
                                     );
                                   },
-                                  controller: despesaController,
-                                  suggestions: despesasList,
                                 );
                               } else {
                                 return const LinearProgressIndicator();
@@ -317,9 +317,9 @@ class _HomePageState extends State<HomePage> {
                         controller: motivoController,
                         focusNode: nodes[6],
                         submit: () {
-                          submit();
                           if (formKey.currentState!.validate()) {
                             clearFields();
+                            submit();
                             setState(() {});
                           }
                         }),
@@ -343,7 +343,7 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(
                       height: 10,
                     ),
-                    const DisplayDespesas(),
+                    const DisplayDespesas()
                   ],
                 ),
               ),

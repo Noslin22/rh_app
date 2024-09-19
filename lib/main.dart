@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'pages/wrapper_page.dart';
+import 'pages/wrapper/wrapper_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

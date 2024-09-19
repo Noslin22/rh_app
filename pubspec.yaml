@@ -41,7 +41,6 @@ dependencies:
   month_picker_dialog: ^0.4.0
 
   #Fields
-  field_suggestion: ^0.2.1
   flutter_masked_text2: 
 
   #Firebase

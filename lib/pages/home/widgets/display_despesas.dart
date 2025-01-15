@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scr_project/core/extensions.dart';
 
 import '../../../consts.dart';
 import '../../../models/despesa_model.dart';
@@ -8,20 +9,41 @@ import '../core/variables.dart';
 
 class DisplayDespesas extends StatefulWidget {
   const DisplayDespesas({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<DisplayDespesas> createState() => _DisplayDespesasState();
 }
 
 class _DisplayDespesasState extends State<DisplayDespesas> {
+  List<DespesaModel> despesas = list.allDespesas;
+
+  @override
+  void initState() {
+    super.initState();
+    list.addListener(
+      () {
+        setState(() {
+          despesas = list.allDespesas;
+          for (var despesa in despesas) {
+            despesa.values.sort(
+              (a, b) => a.date.toDate().compareTo(b.date.toDate()),
+            );
+          }
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Flexible(
       child: ListView.builder(
+        itemCount: despesas.length,
+        shrinkWrap: true,
         itemBuilder: (context, index) {
-          DespesaModel despesa = list[index];
+          DespesaModel despesa = despesas[index];
           List<ValueModel> values = despesa.values;
           return Column(
             children: [
@@ -118,6 +140,8 @@ class _DisplayDespesasState extends State<DisplayDespesas> {
                                                     despesa.name;
                                                 periodoController.text =
                                                     values[index].periodo;
+                                                dateController.text =
+                                                    values[index].date;
                                                 apresentadoController.text =
                                                     values[index].apresentado;
                                                 cupomController.text =
@@ -130,9 +154,7 @@ class _DisplayDespesasState extends State<DisplayDespesas> {
                                                     values[index].motivo;
                                                 despesa.values.removeAt(index);
                                                 if (despesa.values.isEmpty) {
-                                                  list.removeWhere((element) =>
-                                                      element.name ==
-                                                      despesa.name);
+                                                  list.deleteDespesa(despesa);
                                                 }
                                                 Navigator.pop(context);
                                                 setState(() {});
@@ -148,9 +170,7 @@ class _DisplayDespesasState extends State<DisplayDespesas> {
                                               onPressed: () {
                                                 despesa.values.removeAt(index);
                                                 if (despesa.values.isEmpty) {
-                                                  list.removeWhere((element) =>
-                                                      element.name ==
-                                                      despesa.name);
+                                                  list.deleteDespesa(despesa);
                                                 }
                                                 Navigator.pop(context);
                                                 setState(() {});
@@ -180,8 +200,6 @@ class _DisplayDespesasState extends State<DisplayDespesas> {
             ],
           );
         },
-        itemCount: list.length,
-        shrinkWrap: true,
       ),
     );
   }

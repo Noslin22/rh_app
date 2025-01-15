@@ -1,4 +1,4 @@
-import 'package:rh_app/models/value_model.dart';
+import 'package:scr_project/models/value_model.dart';
 
 class DespesaModel {
   final String name;
@@ -9,5 +9,6 @@ class DespesaModel {
   });
 
   @override
-  String toString() => 'DespesaModel(name: $name, values: ${values.map((e) => e.toString()).toString()})';
+  String toString() =>
+      'DespesaModel(name: $name, values: ${values.map((e) => e.toString()).toString()})';
 }

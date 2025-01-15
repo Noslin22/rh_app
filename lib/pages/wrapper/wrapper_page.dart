@@ -1,26 +1,25 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:rh_app/pages/login/login_page.dart';
-import 'package:rh_app/provider/auth_provider.dart';
+import 'package:scr_project/pages/login/login_page.dart';
+import 'package:scr_project/service/auth_service.dart';
 
 import '../home/home_page.dart';
 
 class WrapperPage extends StatelessWidget {
-  WrapperPage({Key? key}) : super(key: key);
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  const WrapperPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final AuthProvider provider = AuthProvider(
-      auth: auth,
-    );
+    final AuthService authService = AuthService.instance;
     return StreamBuilder<User?>(
-      stream: provider.user,
+      stream: authService.user,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return const HomePage();
         } else {
-          return LoginPage(provider: provider,);
+          return LoginPage(
+            authService: authService,
+          );
         }
       },
     );

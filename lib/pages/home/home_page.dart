@@ -3,23 +3,25 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:printing/printing.dart';
-import 'package:rh_app/models/pastor_model.dart';
-import 'package:rh_app/pages/home/widgets/display_despesas.dart';
-import 'package:rh_app/pages/home/widgets/home_appbar.dart';
-import 'package:rh_app/pages/pdf/pdf_page.dart' as pdf;
-import 'package:rh_app/pdf/despesas_pdf.dart';
-import 'package:rh_app/widgets/input_field_widget.dart';
-import 'package:rh_app/widgets/list_field_widget.dart';
+import 'package:scr_project/models/pastor_model.dart';
+import 'package:scr_project/pages/home/widgets/display_despesas.dart';
+import 'package:scr_project/pages/home/widgets/home_appbar.dart';
+import 'package:scr_project/pages/pdf/pdf_page.dart' as pdf;
+import 'package:scr_project/pdf/despesas_pdf.dart';
+import 'package:scr_project/widgets/input_field_widget.dart';
+import 'package:scr_project/widgets/list_field_widget.dart';
+import 'package:url_launcher/link.dart';
 
 import '../../consts.dart';
-import '../../models/despesa_model.dart';
 import 'core/function.dart';
 import 'core/variables.dart';
 
+int selectedCpf = 0;
+
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
   @override
-  _HomePageState createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
@@ -27,11 +29,188 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     init();
+    valorController.addListener(() {
+      valorRecusadoController.updateValue(
+        apresentadoController.numberValue - valorController.numberValue,
+      );
+    });
+    valorRecusadoController.addListener(() {
+      valorController.updateValue(
+        apresentadoController.numberValue - valorRecusadoController.numberValue,
+      );
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("Dê seu feedback"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Com o intuito de aprimorar o SCR pedimos que você contribua mandando melhorias.",
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 24, bottom: 6),
+                    child: Text('Nossos Contatos:'),
+                  ),
+                  Link(
+                    uri: Uri.parse(
+                      'mailto:joaonilsoneto2@gmail.com?subject=Atualização%20SCR',
+                    ),
+                    target: LinkTarget.blank,
+                    builder: (context, openLink) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('Email:'),
+                          TextButton(
+                            onPressed: openLink,
+                            child: const Text(
+                              'joaonilsoneto2@gmail.com',
+                              style: TextStyle(
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  Link(
+                    uri: Uri.parse(
+                      'https://wa.me/75999302754?text=Gostaria%20de%20sugerir%20algumas%20melhorias%20para%20o%20SCR',
+                    ),
+                    target: LinkTarget.blank,
+                    builder: (context, openLink) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('Whatsapp:'),
+                          TextButton(
+                            onPressed: openLink,
+                            child: const Text(
+                              '(75) 99930-2754',
+                              style: TextStyle(
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  ...DateTime.now().isBefore(DateTime(2025, 02, 01))
+                      ? [
+                          const SizedBox(
+                            height: 16,
+                          ),
+                          const Text(
+                            'Atualizações:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const Text(
+                            '   Agora é possível acessar anos anteriores;',
+                          ),
+                          const Text(
+                            '     Alteração sugerida por Katiuscia Souza - ABaC;',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(
+                            height: 8,
+                          ),
+                          const Text(
+                            '   As despesas agora são todas indexadas automaticamente (Todas vão possuir um número);',
+                          ),
+                          const Text('   Correção de Bugs.'),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          const Text(
+                            '   Versão 1.3.1',
+                            style: TextStyle(fontSize: 10),
+                          ),
+                        ]
+                      : []
+                ],
+              ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16, right: 16),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void selectMonth() {
+    showMonthPicker(
+      context: context,
+      monthPickerDialogSettings: const MonthPickerDialogSettings(
+        dialogSettings: PickerDialogSettings(
+          locale: Locale("pt", "BR"),
+        ),
+      ),
+      initialDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().year - 1, 12),
+      lastDate: DateTime(DateTime.now().year, 12),
+    ).then(
+      (value) {
+        if (value == null) {
+          Builder(
+            builder: (context) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    "Selecione um mês",
+                  ),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              return Container();
+            },
+          );
+        } else {
+          periodoController.text =
+              "${value.month < 10 ? "0${value.month}" : value.month.toString()}/${value.year.toString()}";
+        }
+      },
+    ).then(
+      (_) {
+        if (context.mounted) {
+          // ignore: use_build_context_synchronously
+          FocusScope.of(context).requestFocus(nodes[1]);
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    cpfController = TextEditingController(text: cpfs[0]);
     return Scaffold(
       appBar: const PreferredSize(
         preferredSize: Size(double.infinity, 50),
@@ -51,76 +230,36 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                           flex: 6,
                           child: StreamBuilder<QuerySnapshot>(
-                              stream: pastores,
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  List<PastorModel> pastores = snapshot
-                                      .data!.docs
-                                      .map((e) => PastorModel.fromDocument(e))
-                                      .where((element) {
-                                    return element.campo == provider.campo;
-                                  }).toList();
-                                  obreiros = pastores;
-                                  return ListField<PastorModel>(
-                                    icon: Icons.person,
-                                    label: "Obreiro",
-                                    focusNode: nodes[0],
-                                    controller: pastorController,
-                                    suggestions: pastores,
-                                    searchBy: "nome",
-                                    selected: (pastor) {
-                                      setState(() {
-                                        cpfs[0] = pastor.cpf + " ";
-                                        cpfs[1] = pastor.cpf2 + " ";
-                                      });
-                                      pastorController.text =
-                                          pastor.nome.trim();
-                                      FocusScope.of(context)
-                                          .requestFocus(nodes[1]);
-                                      showMonthPicker(
-                                        locale: const Locale("pt", "BR"),
-                                        context: context,
-                                        initialDate: DateTime.now(),
-                                        firstDate: DateTime(
-                                          DateTime.now().year,
-                                        ),
-                                        lastDate:
-                                            DateTime(DateTime.now().year, 12),
-                                      ).then(
-                                        (value) {
-                                          if (value == null) {
-                                            Builder(
-                                              builder: (context) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      "Selecione um mês",
-                                                    ),
-                                                    duration:
-                                                        Duration(seconds: 2),
-                                                  ),
-                                                );
-                                                return Container();
-                                              },
-                                            );
-                                          } else {
-                                            periodoController.text =
-                                                "${value.month < 10 ? "0" + value.month.toString() : value.month.toString()}/${value.year.toString()}";
-                                          }
-                                        },
-                                      ).then(
-                                        (_) {
-                                          FocusScope.of(context)
-                                              .requestFocus(nodes[1]);
-                                        },
-                                      );
-                                    },
-                                  );
-                                } else {
-                                  return const LinearProgressIndicator();
-                                }
-                              }),
+                            stream: pastores,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                List<PastorModel> pastores = snapshot.data!.docs
+                                    .map((e) => PastorModel.fromDocument(e))
+                                    .where((element) {
+                                  return element.campo == authService.campo;
+                                }).toList();
+                                obreiros = pastores;
+                                return ListField<PastorModel>(
+                                  icon: Icons.person,
+                                  label: "Obreiro",
+                                  focusNode: nodes[0],
+                                  controller: pastorController,
+                                  suggestions: pastores,
+                                  searchBy: "nome",
+                                  selected: (pastor) {
+                                    setState(() {
+                                      cpfs[0] = "${pastor.cpf} ";
+                                      cpfs[1] = "${pastor.cpf2} ";
+                                    });
+                                    pastorController.text = pastor.nome.trim();
+                                    selectMonth();
+                                  },
+                                );
+                              } else {
+                                return const LinearProgressIndicator();
+                              }
+                            },
+                          ),
                         ),
                         const SizedBox(
                           width: 10,
@@ -142,22 +281,33 @@ class _HomePageState extends State<HomePage> {
                                   const EdgeInsets.symmetric(horizontal: 12),
                               child: DropdownButton<String>(
                                 items: cpfs
+                                    .where((e) => e.isNotEmpty)
                                     .map(
                                       (e) => DropdownMenuItem<String>(
-                                        child: Text(e),
                                         value: e,
+                                        child: Text(e),
                                       ),
                                     )
                                     .toList(),
-                                onChanged: cpfs.first == "" ? null : (_) {},
+                                onChanged: cpfs.any((e) => e.isEmpty)
+                                    ? null
+                                    : (cpf) {
+                                        setState(() {
+                                          if (cpf != null) {
+                                            selectedCpf = cpfs.indexOf(cpf);
+                                          }
+                                        });
+                                      },
                                 icon: Container(),
-                                hint: Row(
-                                  children: const [
+                                hint: const Row(
+                                  children: [
                                     Icon(Icons.payment),
                                     Text("CPF"),
                                   ],
                                 ),
-                                value: cpfs[0] == "" ? null : cpfs[0],
+                                value: cpfs[selectedCpf] == ""
+                                    ? null
+                                    : cpfs[selectedCpf],
                                 underline: Container(),
                                 borderRadius: BorderRadius.circular(10),
                                 iconDisabledColor: Colors.black,
@@ -176,6 +326,8 @@ class _HomePageState extends State<HomePage> {
                           child: InputField(
                             controller: periodoController,
                             icon: Icons.event,
+                            readOnly: true,
+                            onTap: selectMonth,
                             label: "Período",
                           ),
                         ),
@@ -189,7 +341,7 @@ class _HomePageState extends State<HomePage> {
                             builder: (_, snapshot) {
                               if (snapshot.hasData) {
                                 List<String> despesas = snapshot.data!.docs
-                                    .map((e) => e["nome"].toString() + " ")
+                                    .map((e) => "${e["nome"]} ")
                                     .toList();
                                 despesasList = despesas;
                                 return ListField<String>(
@@ -199,6 +351,7 @@ class _HomePageState extends State<HomePage> {
                                   suggestions: despesasList,
                                   label: "Despesa",
                                   selected: (value) {
+                                    despesaController.text = value;
                                     showDatePicker(
                                       locale: const Locale("pt", "BR"),
                                       context: context,
@@ -232,8 +385,10 @@ class _HomePageState extends State<HomePage> {
                                       },
                                     ).then(
                                       (_) {
-                                        FocusScope.of(context)
-                                            .requestFocus(nodes[2]);
+                                        if (context.mounted) {
+                                          FocusScope.of(context)
+                                              .requestFocus(nodes[2]);
+                                        }
                                       },
                                     );
                                   },
@@ -318,8 +473,8 @@ class _HomePageState extends State<HomePage> {
                         focusNode: nodes[6],
                         submit: () {
                           if (formKey.currentState!.validate()) {
-                            clearFields();
                             submit();
+                            clearFields();
                             setState(() {});
                           }
                         }),
@@ -328,15 +483,15 @@ class _HomePageState extends State<HomePage> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        Printing.layoutPdf(onLayout: (format) {
-                          return buildPdf(
-                            despesas: list,
-                            date: meses[int.parse(
-                                    periodoController.text.split("/")[0])]! +
-                                " / " +
-                                periodoController.text.split("/")[1],
-                          );
-                        });
+                        if (list.allDespesas.isNotEmpty) {
+                          Printing.layoutPdf(onLayout: (format) {
+                            return buildPdf(
+                              despesas: list.allDespesas,
+                              date:
+                                  "${meses[int.parse(periodoController.text.split("/")[0])]!} / ${periodoController.text.split("/")[1]}",
+                            );
+                          });
+                        }
                       },
                       child: const Text("Imprimir"),
                     ),

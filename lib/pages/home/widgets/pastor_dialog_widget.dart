@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 
-import 'package:rh_app/models/pastor_model.dart';
-import 'package:rh_app/widgets/list_field_widget.dart';
+import 'package:scr_project/models/pastor_model.dart';
+import 'package:scr_project/widgets/list_field_widget.dart';
 
 import '../../../consts.dart';
-import '../../../provider/auth_provider.dart';
+import '../../../service/auth_service.dart';
 import '../../../widgets/input_field_widget.dart';
 
 class PastorDialog extends StatefulWidget {
   const PastorDialog({
-    Key? key,
-    required this.provider,
-  }) : super(key: key);
-  final AuthProvider provider;
+    super.key,
+    required this.authService,
+  });
+  final AuthService authService;
 
   @override
   State<PastorDialog> createState() => _PastorDialogState();
@@ -43,8 +43,8 @@ class _PastorDialogState extends State<PastorDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                modes[mode] + " Obreiro",
-                style: Theme.of(context).textTheme.headline6,
+                "${modes[mode]} Obreiro",
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(
                 height: 10,
@@ -137,11 +137,11 @@ class _PastorDialogState extends State<PastorDialog> {
                         }
                         setState(() {});
                       },
-                      child: const Text("Modo"),
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.blue),
+                            WidgetStateProperty.all<Color>(Colors.blue),
                       ),
+                      child: const Text("Modo"),
                     ),
                     const SizedBox(
                       width: 10,
@@ -160,7 +160,7 @@ class _PastorDialogState extends State<PastorDialog> {
                                   .doc(value.docs
                                       .where((element) =>
                                           element["campo"] ==
-                                          widget.provider.campo)
+                                          widget.authService.campo)
                                       .single
                                       .id)
                                   .delete();
@@ -173,7 +173,7 @@ class _PastorDialogState extends State<PastorDialog> {
                                 "nome": obreiroController.text,
                                 "cpf": cpf.text,
                                 "cpf2": cpf2.text,
-                                "campo": widget.provider.campo,
+                                "campo": widget.authService.campo,
                               });
                               break;
                             case 1:
@@ -198,11 +198,11 @@ class _PastorDialogState extends State<PastorDialog> {
                         }
                         Navigator.of(context).pop();
                       },
-                      child: Text(modes[mode]),
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.green),
+                            WidgetStateProperty.all<Color>(Colors.green),
                       ),
+                      child: Text(modes[mode]),
                     ),
                   ],
                 ),

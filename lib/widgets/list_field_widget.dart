@@ -3,7 +3,7 @@ import 'package:flutter/scheduler.dart';
 
 class ListField<T extends Object> extends StatelessWidget {
   const ListField({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
     this.focusNode,
@@ -11,7 +11,7 @@ class ListField<T extends Object> extends StatelessWidget {
     required this.suggestions,
     this.searchBy,
     required this.selected,
-  }) : super(key: key);
+  });
   final IconData icon;
   final String label;
   final FocusNode? focusNode;

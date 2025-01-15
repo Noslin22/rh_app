@@ -6,12 +6,12 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 class PdfView extends StatefulWidget {
   final Uint8List data;
   const PdfView({
-    Key? key,
+    super.key,
     required this.data,
-  }) : super(key: key);
+  });
 
   @override
-  _PdfViewState createState() => _PdfViewState();
+  State<PdfView> createState() => _PdfViewState();
 }
 
 class _PdfViewState extends State<PdfView> {
@@ -38,9 +38,6 @@ class _PdfViewState extends State<PdfView> {
         case PdfPageRotateAngle.rotateAngle270:
           angle = PdfPageRotateAngle.rotateAngle180;
           break;
-        default:
-          angle = PdfPageRotateAngle.rotateAngle0;
-          break;
       }
     } else {
       switch (rotation) {
@@ -54,9 +51,6 @@ class _PdfViewState extends State<PdfView> {
           angle = PdfPageRotateAngle.rotateAngle270;
           break;
         case PdfPageRotateAngle.rotateAngle270:
-          angle = PdfPageRotateAngle.rotateAngle0;
-          break;
-        default:
           angle = PdfPageRotateAngle.rotateAngle0;
           break;
       }
@@ -77,22 +71,20 @@ class _PdfViewState extends State<PdfView> {
       children: [
         Flexible(
           child: SfPdfViewer.memory(
-                  data!,
-                  controller: controller,
-                  onPageChanged: (page) {
-                    currentPage = page.newPageNumber;
-                    setState(() {});
-                  },
-                  pageLayoutMode: PdfPageLayoutMode.single,
-                  onDocumentLoaded: (doc) {
-                    document = doc.document;
-                    pages = document.pages.count;
-                    setState(() {});
-                  },
-                  
-                ),
-        )
-        ,
+            data!,
+            controller: controller,
+            onPageChanged: (page) {
+              currentPage = page.newPageNumber;
+              setState(() {});
+            },
+            pageLayoutMode: PdfPageLayoutMode.single,
+            onDocumentLoaded: (doc) {
+              document = doc.document;
+              pages = document.pages.count;
+              setState(() {});
+            },
+          ),
+        ),
         const SizedBox(
           height: 10,
         ),
@@ -114,7 +106,7 @@ class _PdfViewState extends State<PdfView> {
                 PdfPage page = document.pages[controller.pageNumber - 1];
                 PdfPageRotateAngle rotationAngle = page.rotation;
                 page.rotation = turn(rotation: rotationAngle, left: true);
-                List<int> bytes = document.save();
+                List<int> bytes = await document.save();
                 data = Uint8List.fromList(bytes);
                 setState(() {});
               },
@@ -133,11 +125,11 @@ class _PdfViewState extends State<PdfView> {
               icon: const Icon(Icons.zoom_in),
             ),
             IconButton(
-              onPressed: () {
+              onPressed: () async {
                 PdfPage page = document.pages[controller.pageNumber - 1];
                 PdfPageRotateAngle rotationAngle = page.rotation;
                 page.rotation = turn(rotation: rotationAngle);
-                List<int> bytes = document.save();
+                List<int> bytes = await document.save();
                 data = Uint8List.fromList(bytes);
                 setState(() {});
               },

@@ -25,20 +25,22 @@ String cpf = "";
 
 final TextEditingController periodoController = TextEditingController();
 final TextEditingController dateController = TextEditingController();
-final TextEditingController apresentadoController = MoneyMaskedTextController(
+final MoneyMaskedTextController apresentadoController =
+    MoneyMaskedTextController(
   decimalSeparator: ",",
   thousandSeparator: ".",
   precision: 2,
   leftSymbol: "R\$",
 );
 final TextEditingController cupomController = TextEditingController();
-final TextEditingController valorController = MoneyMaskedTextController(
+final MoneyMaskedTextController valorController = MoneyMaskedTextController(
   decimalSeparator: ",",
   thousandSeparator: ".",
   precision: 2,
   leftSymbol: "R\$",
 );
-final TextEditingController valorRecusadoController = MoneyMaskedTextController(
+final MoneyMaskedTextController valorRecusadoController =
+    MoneyMaskedTextController(
   decimalSeparator: ",",
   thousandSeparator: ".",
   precision: 2,

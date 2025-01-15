@@ -2,19 +2,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:rh_app/provider/auth_provider.dart';
+import 'package:scr_project/service/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   final FirebaseAuthException? error;
-  final AuthProvider provider;
+  final AuthService authService;
   const LoginPage({
-    Key? key,
+    super.key,
     this.error,
-    required this.provider,
-  }) : super(key: key);
+    required this.authService,
+  });
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
             child: IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () {
-                  widget.provider.error = null;
+                  widget.authService.error = null;
                 }),
           ),
         ],
@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         ValueListenableBuilder<FirebaseAuthException?>(
-                          valueListenable: widget.provider.errorNotifier,
+                          valueListenable: widget.authService.errorNotifier,
                           builder: (_, value, __) {
                             if (value != null) {
                               return Column(
@@ -96,19 +96,18 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
                         const SizedBox(
-                              height: 20,
-                            ),
+                          height: 20,
+                        ),
                         Container(
-                          child:
-                          Image.asset("images/logo_app.png"),
                           constraints: const BoxConstraints(
                             maxWidth: 500,
                             maxHeight: 444,
                           ),
+                          child: Image.asset("images/logo_app.png"),
                         ),
                         const SizedBox(
-                              height: 10,
-                            ),
+                          height: 10,
+                        ),
                         AutofillGroup(
                           child: Column(
                             children: [
@@ -137,8 +136,8 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                                 onSubmitted: (value) async {
                                   loading = true;
-                                  User? user = await widget.provider.signIn(
-                                    nome: nomeController.text,
+                                  User? user = await widget.authService.signIn(
+                                    name: nomeController.text,
                                     senha: senhaController.text,
                                   );
                                   if (user != null) {
@@ -158,8 +157,8 @@ class _LoginPageState extends State<LoginPage> {
                               ElevatedButton(
                                 onPressed: () async {
                                   loading = true;
-                                  User? user = await widget.provider.signIn(
-                                    nome: nomeController.text,
+                                  User? user = await widget.authService.signIn(
+                                    name: nomeController.text,
                                     senha: senhaController.text,
                                   );
                                   if (user != null) {

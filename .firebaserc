@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "rh-app-a2922"
-  }
+  },
+  "targets": {
+    "rh-app-a2922": {
+      "hosting": {
+        "scr": [
+          "scrseven"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

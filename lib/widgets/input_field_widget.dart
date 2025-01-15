@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:rh_app/consts.dart';
+import 'package:scr_project/consts.dart';
 
 class InputField extends StatelessWidget {
   final TextEditingController controller;
@@ -11,8 +11,9 @@ class InputField extends StatelessWidget {
   final FocusNode? focusNode;
   final String? initialValue;
   final VoidCallback? submit;
+  final VoidCallback? onTap;
   const InputField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.icon,
     required this.label,
@@ -21,7 +22,8 @@ class InputField extends StatelessWidget {
     this.focusNode,
     this.initialValue,
     this.submit,
-  }) : super(key: key);
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,7 @@ class InputField extends StatelessWidget {
       readOnly: readOnly,
       initialValue: initialValue,
       focusNode: focusNode,
+      onTap: onTap,
       validator: error
           ? (value) {
               if (value != null && value.isEmpty) {
@@ -56,7 +59,7 @@ class InputField extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon),
-            Text(label),
+            Flexible(child: Text(label)),
           ],
         ),
       ),

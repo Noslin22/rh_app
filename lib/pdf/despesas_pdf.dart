@@ -1,10 +1,9 @@
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart';
-import 'package:rh_app/models/despesa_model.dart';
-import 'package:rh_app/models/value_model.dart';
+import 'package:scr_project/models/despesa_model.dart';
+import 'package:scr_project/models/value_model.dart';
 
 import '../consts.dart';
 
@@ -14,9 +13,9 @@ Future<Uint8List> buildPdf(
   final ByteData image = await rootBundle.load("images/iasd-logo.png");
   final List<String> fields = [
     "Apresentado",
-    "Cupom - Data",
-    "Valor",
-    "Valor Recusado",
+    "Nº Doc - Data",
+    "Aceito",
+    "Recusado",
     "Motivo",
   ];
   double totalAceito = 0;
@@ -40,7 +39,7 @@ Future<Uint8List> buildPdf(
             "Total Apresentado: R\$${MoneyMaskedTextController(initialValue: apresentado).text}",
             style: const TextStyle(
               color: PdfColors.black,
-              fontSize: 12,
+              fontSize: 10,
             ),
           ),
           SizedBox(width: 26),
@@ -55,7 +54,7 @@ Future<Uint8List> buildPdf(
                 "Total Aceito: R\$${MoneyMaskedTextController(initialValue: aceito).text}",
                 style: const TextStyle(
                   color: PdfColors.black,
-                  fontSize: 12,
+                  fontSize: 10,
                 ),
               ),
             ),
@@ -65,7 +64,7 @@ Future<Uint8List> buildPdf(
             "Total Recusado: R\$${MoneyMaskedTextController(initialValue: recusado).text}",
             style: const TextStyle(
               color: PdfColors.black,
-              fontSize: 12,
+              fontSize: 10,
             ),
           ),
         ],
@@ -103,11 +102,11 @@ Future<Uint8List> buildPdf(
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Obreiro: " + despesas[0].values[0].pastor),
+              Text("Obreiro: ${despesas[0].values[0].pastor}"),
               Text(date),
             ],
           ),
-          Text("CPF: " + despesas[0].values[0].cpf),
+          Text("CPF: ${despesas[0].values[0].cpf}"),
           Divider(),
           SizedBox(height: 10),
           ...List.generate(
@@ -125,7 +124,7 @@ Future<Uint8List> buildPdf(
                     child: Text(
                       despesa.name,
                       style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Flexible(
@@ -140,7 +139,7 @@ Future<Uint8List> buildPdf(
                               Text(
                                 fields[index],
                                 style: const TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 10,
                                   color: PdfColors.black,
                                 ),
                               ),
@@ -172,7 +171,7 @@ Future<Uint8List> buildPdf(
                                   child: Text(
                                     variable.isEmpty ? "----------" : variable,
                                     style: const TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 10,
                                       color: PdfColors.black,
                                     ),
                                   ),

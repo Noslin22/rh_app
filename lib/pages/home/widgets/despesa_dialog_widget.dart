@@ -5,10 +5,10 @@ import '../../../widgets/input_field_widget.dart';
 import '../../../widgets/list_field_widget.dart';
 
 class DespesaDialog extends StatefulWidget {
-  const DespesaDialog({Key? key}) : super(key: key);
+  const DespesaDialog({super.key});
 
   @override
-  _DespesaDialogState createState() => _DespesaDialogState();
+  State<DespesaDialog> createState() => _DespesaDialogState();
 }
 
 class _DespesaDialogState extends State<DespesaDialog> {
@@ -29,8 +29,8 @@ class _DespesaDialogState extends State<DespesaDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                modes[mode] + " Despesa",
-                style: Theme.of(context).textTheme.headline6,
+                "${modes[mode]} Despesa",
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(
                 height: 10,
@@ -70,17 +70,17 @@ class _DespesaDialogState extends State<DespesaDialog> {
                         }
                         setState(() {});
                       },
-                      child: const Text("Modo"),
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.blue),
+                            WidgetStateProperty.all<Color>(Colors.blue),
                       ),
+                      child: const Text("Modo"),
                     ),
                     const SizedBox(
                       width: 10,
                     ),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         if (mode == 1) {
                           db
                               .collection("despesas")
@@ -93,17 +93,22 @@ class _DespesaDialogState extends State<DespesaDialog> {
                                     .delete(),
                               );
                         } else {
+                          final q = await db.collection('despesas').get();
+
                           db.collection("despesas").add({
-                            "nome": despesaController.text.trim(),
+                            "nome":
+                                "${(q.size + 1).toString().padLeft(2, '0')} - ${despesaController.text.trim()}",
                           });
                         }
-                        Navigator.of(context).pop();
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
+                        }
                       },
-                      child: Text(modes[mode]),
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.green),
+                            WidgetStateProperty.all<Color>(Colors.green),
                       ),
+                      child: Text(modes[mode]),
                     ),
                   ],
                 ),

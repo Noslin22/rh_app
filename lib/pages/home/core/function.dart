@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:scr_project/service/auth_service.dart';
 
 import '../../../consts.dart';
 import '../../../models/despesa_model.dart';
 import '../../../models/value_model.dart';
 import 'variables.dart';
 
+final _despesas = list.allDespesas;
+
 void init() {
-  List<String> nomes =
-      provider.auth.currentUser!.email!.replaceAll("_", " ").split(" ");
-  List<String> first = nomes[0].split("");
-  List<String> last = nomes[1].split("@")[0].split("");
-  first = [first.first.toUpperCase(), ...first.sublist(1, first.length)];
-  last = [last.first.toUpperCase(), ...last.sublist(1, last.length)];
-  nome = "${first.join()} ${last.join()}";
+  nome = AuthService.instance.nome;
   db.collection("users").where("nome", isEqualTo: nome).get().then(
     (value) {
-      return provider.campo = value.docs.single["campo"].toString();
+      return authService.campo = value.docs[0]["campo"].toString();
     },
   );
 }
@@ -43,22 +40,23 @@ void submit() {
       pastorController.text.isNotEmpty &&
       cupomController.text.isNotEmpty &&
       periodoController.text.isNotEmpty) {
-    if (list.where((element) => element.name == despesa).isNotEmpty) {
-      list.where((element) => element.name == despesa).first.values.add(
-            ValueModel(
-              pastor: pastorController.text,
-              cpf: cpfController.text,
-              periodo: periodoController.text,
-              apresentado: apresentadoController.text,
-              cupom: cupomController.text,
-              valor: valorController.text,
-              recusado: valorRecusadoController.text,
-              motivo: motivoController.text,
-              date: dateController.text,
-            ),
-          );
+    if (_despesas.where((element) => element.name == despesa).isNotEmpty) {
+      list.addValue(
+        despesa,
+        ValueModel(
+          pastor: pastorController.text,
+          cpf: cpfController.text,
+          periodo: periodoController.text,
+          apresentado: apresentadoController.text,
+          cupom: cupomController.text,
+          valor: valorController.text,
+          recusado: valorRecusadoController.text,
+          motivo: motivoController.text,
+          date: dateController.text,
+        ),
+      );
     } else {
-      list.add(
+      list.addDespesa(
         DespesaModel(
           name: despesa,
           values: [
@@ -84,7 +82,7 @@ Widget generateTotal(int index) {
   double aceito = 0;
   double recusado = 0;
   double apresentado = 0;
-  for (var e in list[index].values) {
+  for (var e in _despesas[index].values) {
     aceito += parse(e.valor);
     recusado += parse(e.recusado);
     apresentado += parse(e.apresentado);

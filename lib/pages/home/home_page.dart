@@ -209,6 +209,42 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void selectDate() {
+    showDatePicker(
+      locale: const Locale("pt", "BR"),
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().year - 1, 12),
+      lastDate: DateTime(DateTime.now().year, 12),
+    ).then(
+      (value) {
+        if (value == null) {
+          Builder(
+            builder: (context) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Selecione uma data"),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              return Container();
+            },
+          );
+        } else {
+          dateController.text =
+              "${value.day < 10 ? "0${value.day}" : value.day}/${value.month < 10 ? "0${value.month}" : value.month}/${value.year}";
+        }
+      },
+    ).then(
+      (_) {
+        if (context.mounted) {
+          // ignore: use_build_context_synchronously
+          FocusScope.of(context).requestFocus(nodes[2]);
+        }
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -352,45 +388,7 @@ class _HomePageState extends State<HomePage> {
                                   label: "Despesa",
                                   selected: (value) {
                                     despesaController.text = value;
-                                    showDatePicker(
-                                      locale: const Locale("pt", "BR"),
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(
-                                        DateTime.now().year,
-                                      ),
-                                      lastDate:
-                                          DateTime(DateTime.now().year, 12),
-                                    ).then(
-                                      (value) {
-                                        if (value == null) {
-                                          Builder(
-                                            builder: (context) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "Selecione uma data"),
-                                                  duration:
-                                                      Duration(seconds: 2),
-                                                ),
-                                              );
-                                              return Container();
-                                            },
-                                          );
-                                        } else {
-                                          dateController.text =
-                                              "${value.day < 10 ? "0${value.day}" : value.day}/${value.month < 10 ? "0${value.month}" : value.month}/${value.year}";
-                                        }
-                                      },
-                                    ).then(
-                                      (_) {
-                                        if (context.mounted) {
-                                          FocusScope.of(context)
-                                              .requestFocus(nodes[2]);
-                                        }
-                                      },
-                                    );
+                                    selectDate();
                                   },
                                 );
                               } else {
@@ -406,6 +404,7 @@ class _HomePageState extends State<HomePage> {
                           child: InputField(
                             controller: dateController,
                             icon: Icons.calendar_today,
+                            onTap: selectDate,
                             label: "Data",
                           ),
                         ),

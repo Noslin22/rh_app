@@ -21,8 +21,6 @@ final Map<int, String> meses = {
 final FirebaseFirestore db = FirebaseFirestore.instance;
 final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-String cpf = "";
-
 final TextEditingController periodoController = TextEditingController();
 final TextEditingController dateController = TextEditingController();
 final MoneyMaskedTextController apresentadoController =

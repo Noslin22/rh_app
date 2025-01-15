@@ -22,7 +22,7 @@ void clearFields({bool all = false}) {
   if (all) {
     pastorController.clear();
     cpfs = ["", ""];
-    cpf = "";
+    selectedCpf = 0;
     periodoController.clear();
   }
   despesaController.clear();
@@ -45,7 +45,7 @@ void submit() {
         despesa,
         ValueModel(
           pastor: pastorController.text,
-          cpf: cpfController.text,
+          cpf: cpfs[selectedCpf],
           periodo: periodoController.text,
           apresentado: apresentadoController.text,
           cupom: cupomController.text,
@@ -62,7 +62,7 @@ void submit() {
           values: [
             ValueModel(
               pastor: pastorController.text,
-              cpf: cpfController.text,
+              cpf: cpfs[selectedCpf],
               periodo: periodoController.text,
               apresentado: apresentadoController.text,
               cupom: cupomController.text,

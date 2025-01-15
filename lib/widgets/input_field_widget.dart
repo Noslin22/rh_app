@@ -46,10 +46,10 @@ class InputField extends StatelessWidget {
           ? (_) {
               int index = nodes.indexOf(focusNode!) + 1;
               if (nodes.length > index) {
-                FocusScope.of(context).requestFocus(nodes[index]);
+                nodes[index].requestFocus();
               } else {
                 submit!();
-                FocusScope.of(context).requestFocus(nodes[1]);
+                nodes[1].requestFocus();
               }
             }
           : null,

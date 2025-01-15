@@ -7,10 +7,11 @@ import 'package:scr_project/models/despesa_list_model.dart';
 import '../../../consts.dart';
 import '../../../service/auth_service.dart';
 
-late TextEditingController cpfController;
 AuthService authService = AuthService.instance;
 String? nome;
 List<String> cpfs = ["", ""];
+
+int selectedCpf = 0;
 
 final TextEditingController pastorController = TextEditingController();
 final TextEditingController despesaController = TextEditingController();

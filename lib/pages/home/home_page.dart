@@ -16,8 +16,6 @@ import '../../consts.dart';
 import 'core/function.dart';
 import 'core/variables.dart';
 
-int selectedCpf = 0;
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -25,20 +23,52 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  void valorListener() {
+    valorRecusadoController.updateValue(
+      apresentadoController.numberValue - valorController.numberValue,
+    );
+  }
+
+  void valorRecusadoListener() {
+    valorController.updateValue(
+      apresentadoController.numberValue - valorRecusadoController.numberValue,
+    );
+  }
+
+  void onFocus2Listener() {
+    Future.delayed(const Duration(microseconds: 10), () {
+      apresentadoController.selection = TextSelection.collapsed(
+        offset: apresentadoController.text.length,
+      );
+    });
+  }
+
+  void onFocus4Listener() {
+    Future.delayed(const Duration(microseconds: 10), () {
+      valorController.selection = TextSelection.collapsed(
+        offset: valorController.text.length,
+      );
+    });
+  }
+
+  void onFocus5Listener() {
+    Future.delayed(const Duration(microseconds: 10), () {
+      valorRecusadoController.selection = TextSelection.collapsed(
+        offset: valorRecusadoController.text.length,
+      );
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     init();
-    valorController.addListener(() {
-      valorRecusadoController.updateValue(
-        apresentadoController.numberValue - valorController.numberValue,
-      );
-    });
-    valorRecusadoController.addListener(() {
-      valorController.updateValue(
-        apresentadoController.numberValue - valorRecusadoController.numberValue,
-      );
-    });
+    valorController.addListener(valorListener);
+    valorRecusadoController.addListener(valorRecusadoListener);
+
+    nodes[2].addListener(onFocus2Listener);
+    nodes[4].addListener(onFocus4Listener);
+    nodes[5].addListener(onFocus5Listener);
 
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
@@ -135,7 +165,7 @@ class _HomePageState extends State<HomePage> {
                             height: 20,
                           ),
                           const Text(
-                            '   Versão 1.3.1',
+                            '   Versão 1.3.2',
                             style: TextStyle(fontSize: 10),
                           ),
                         ]
@@ -202,8 +232,7 @@ class _HomePageState extends State<HomePage> {
     ).then(
       (_) {
         if (context.mounted) {
-          // ignore: use_build_context_synchronously
-          FocusScope.of(context).requestFocus(nodes[1]);
+          nodes[1].requestFocus();
         }
       },
     );
@@ -238,11 +267,27 @@ class _HomePageState extends State<HomePage> {
     ).then(
       (_) {
         if (context.mounted) {
-          // ignore: use_build_context_synchronously
-          FocusScope.of(context).requestFocus(nodes[2]);
+          nodes[2].requestFocus();
+
+          Future.delayed(const Duration(microseconds: 10), () {
+            apresentadoController.selection = TextSelection.collapsed(
+              offset: apresentadoController.text.length,
+            );
+          });
         }
       },
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    valorController.removeListener(valorListener);
+    valorRecusadoController.removeListener(valorRecusadoListener);
+
+    nodes[2].removeListener(onFocus2Listener);
+    nodes[4].removeListener(onFocus4Listener);
+    nodes[5].removeListener(onFocus5Listener);
   }
 
   @override

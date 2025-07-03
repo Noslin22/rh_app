@@ -68,120 +68,124 @@ class _LoginPageState extends State<LoginPage> {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : Row(
-              children: [
-                Expanded(
-                  child: Container(),
-                ),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        ValueListenableBuilder<FirebaseAuthException?>(
-                          valueListenable: widget.authService.errorNotifier,
-                          builder: (_, value, __) {
-                            if (value != null) {
-                              return Column(
-                                children: [
-                                  const SizedBox(
-                                    height: 20,
+          : SingleChildScrollView(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(),
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ValueListenableBuilder<FirebaseAuthException?>(
+                            valueListenable: widget.authService.errorNotifier,
+                            builder: (_, value, __) {
+                              if (value != null) {
+                                return Column(
+                                  children: [
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    alert(),
+                                  ],
+                                );
+                              }
+                              return Container();
+                            },
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          Container(
+                            constraints: const BoxConstraints(
+                              maxWidth: 500,
+                              maxHeight: 300,
+                            ),
+                            child: Image.asset("images/logo_app.png"),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          AutofillGroup(
+                            child: Column(
+                              children: [
+                                TextField(
+                                  controller: nomeController,
+                                  focusNode: nomeFocus,
+                                  decoration: const InputDecoration(
+                                    labelText: "Nome",
+                                    border: OutlineInputBorder(),
                                   ),
-                                  alert(),
-                                ],
-                              );
-                            }
-                            return Container();
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Container(
-                          constraints: const BoxConstraints(
-                            maxWidth: 500,
-                            maxHeight: 444,
-                          ),
-                          child: Image.asset("images/logo_app.png"),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        AutofillGroup(
-                          child: Column(
-                            children: [
-                              TextField(
-                                controller: nomeController,
-                                focusNode: nomeFocus,
-                                decoration: const InputDecoration(
-                                  labelText: "Nome",
-                                  border: OutlineInputBorder(),
+                                  onSubmitted: (value) {
+                                    FocusScope.of(context)
+                                        .requestFocus(senhaFocus);
+                                  },
+                                  autofillHints: const [AutofillHints.username],
                                 ),
-                                onSubmitted: (value) {
-                                  FocusScope.of(context)
-                                      .requestFocus(senhaFocus);
-                                },
-                                autofillHints: const [AutofillHints.username],
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              TextField(
-                                controller: senhaController,
-                                focusNode: senhaFocus,
-                                decoration: const InputDecoration(
-                                  labelText: "Senha",
-                                  border: OutlineInputBorder(),
+                                const SizedBox(
+                                  height: 10,
                                 ),
-                                onSubmitted: (value) async {
-                                  loading = true;
-                                  User? user = await widget.authService.signIn(
-                                    name: nomeController.text,
-                                    senha: senhaController.text,
-                                  );
-                                  if (user != null) {
-                                    TextInput.finishAutofillContext();
-                                  } else {
-                                    setState(() {
-                                      loading = false;
-                                    });
-                                  }
-                                },
-                                autofillHints: const [AutofillHints.password],
-                                obscureText: true,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  loading = true;
-                                  User? user = await widget.authService.signIn(
-                                    name: nomeController.text,
-                                    senha: senhaController.text,
-                                  );
-                                  if (user != null) {
-                                    TextInput.finishAutofillContext();
-                                  } else {
-                                    setState(() {
-                                      loading = false;
-                                    });
-                                  }
-                                },
-                                child: const Text("Logar"),
-                              ),
-                            ],
+                                TextField(
+                                  controller: senhaController,
+                                  focusNode: senhaFocus,
+                                  decoration: const InputDecoration(
+                                    labelText: "Senha",
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  onSubmitted: (value) async {
+                                    loading = true;
+                                    User? user =
+                                        await widget.authService.signIn(
+                                      name: nomeController.text,
+                                      senha: senhaController.text,
+                                    );
+                                    if (user != null) {
+                                      TextInput.finishAutofillContext();
+                                    } else {
+                                      setState(() {
+                                        loading = false;
+                                      });
+                                    }
+                                  },
+                                  autofillHints: const [AutofillHints.password],
+                                  obscureText: true,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    loading = true;
+                                    User? user =
+                                        await widget.authService.signIn(
+                                      name: nomeController.text,
+                                      senha: senhaController.text,
+                                    );
+                                    if (user != null) {
+                                      TextInput.finishAutofillContext();
+                                    } else {
+                                      setState(() {
+                                        loading = false;
+                                      });
+                                    }
+                                  },
+                                  child: const Text("Logar"),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: Container(),
-                ),
-              ],
+                  Expanded(
+                    child: Container(),
+                  ),
+                ],
+              ),
             ),
     );
   }

@@ -66,7 +66,7 @@ class _PdfViewState extends State<PdfView> {
 
   @override
   Widget build(BuildContext context) {
-    controller.jumpToPage(currentPage);
+    // controller.jumpToPage(currentPage);
     return Column(
       children: [
         Flexible(

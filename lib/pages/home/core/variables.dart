@@ -20,7 +20,11 @@ final Stream<QuerySnapshot> despesas =
     db.collection("despesas").orderBy("nome").snapshots();
 
 Uint8List? data;
-bool pdfSelected = false;
+final ValueNotifier<bool> pdfSelectedNotifier = ValueNotifier<bool>(false);
+bool get pdfSelected => pdfSelectedNotifier.value;
+set pdfSelected(bool value) {
+  pdfSelectedNotifier.value = value;
+}
 
 DespesaListModel list = DespesaListModel();
 

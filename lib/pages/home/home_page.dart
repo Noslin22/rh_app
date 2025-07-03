@@ -550,30 +550,34 @@ class _HomePageState extends State<HomePage> {
                 width: 16,
               ),
               Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: pdfSelected
-                      ? pdf.PdfView(
-                          data: data!,
-                        )
-                      : Center(
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              FilePickerResult? result =
-                                  await FilePicker.platform.pickFiles();
-                              if (result != null) {
-                                data = result.files.single.bytes!;
-                                setState(() {
-                                  pdfSelected = true;
-                                });
-                              }
-                            },
-                            child: const Text("Selecionar o PDF"),
-                          ),
-                        ),
-                ),
+                child: ValueListenableBuilder<bool>(
+                    valueListenable: pdfSelectedNotifier,
+                    builder: (context, selected, _) {
+                      return Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: selected
+                            ? pdf.PdfView(
+                                data: data!,
+                              )
+                            : Center(
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    FilePickerResult? result =
+                                        await FilePicker.platform.pickFiles();
+                                    if (result != null) {
+                                      data = result.files.single.bytes;
+                                      setState(() {
+                                        pdfSelected = true;
+                                      });
+                                    }
+                                  },
+                                  child: const Text("Selecionar o PDF"),
+                                ),
+                              ),
+                      );
+                    }),
               ),
             ],
           ),

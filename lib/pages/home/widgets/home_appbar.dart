@@ -69,11 +69,12 @@ class _HomeAppbarState extends State<HomeAppbar> {
                   actions: [
                     ElevatedButton(
                       onPressed: () {
-                        pdfSelected = false;
-                        clearFields(all: true);
-                        list.clear();
-                        Navigator.pop(context);
-                        setState(() {});
+                        setState(() {
+                          pdfSelected = false;
+                          clearFields(all: true);
+                          list.clear();
+                          Navigator.pop(context);
+                        });
                       },
                       child: const Text("Sim"),
                     ),

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:scr_project/pages/home/home_controller.dart';
 
 import '../../../service/auth_service.dart';
-import '../core/function.dart';
 import '../core/variables.dart';
 import 'despesa_dialog_widget.dart';
 import 'pastor_dialog_widget.dart';
 
 class HomeAppbar extends StatefulWidget {
-  const HomeAppbar({super.key});
+  const HomeAppbar({super.key, required this.controller});
+  final HomeController controller;
 
   @override
   State<HomeAppbar> createState() => _HomeAppbarState();
@@ -71,7 +72,7 @@ class _HomeAppbarState extends State<HomeAppbar> {
                       onPressed: () {
                         setState(() {
                           pdfSelected = false;
-                          clearFields(all: true);
+                          widget.controller.clearFields(all: true);
                           list.clear();
                           Navigator.pop(context);
                         });
@@ -88,6 +89,22 @@ class _HomeAppbarState extends State<HomeAppbar> {
             },
             icon: const Icon(Icons.add_chart),
           ),
+        ),
+        ValueListenableBuilder(
+          valueListenable: widget.controller.pdfEnabledNotifier,
+          builder: (context, pdfEnabled, _) {
+            return Tooltip(
+              message: pdfEnabled ? "Desabilitar PDF" : "Habilitar PDF",
+              child: IconButton(
+                onPressed: () {
+                  widget.controller.switchPdfEnabled();
+                },
+                icon: Icon(
+                  pdfEnabled ? Icons.content_paste_off : Icons.content_paste,
+                ),
+              ),
+            );
+          },
         ),
       ],
     );

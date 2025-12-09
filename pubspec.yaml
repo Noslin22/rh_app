@@ -2,7 +2,7 @@ name: scr_project
 description: "An HR Project"
 publish_to: 'none' 
 
-version: 1.0.0+1
+version: 1.3.3+5
 
 platforms:
   web:
@@ -35,8 +35,6 @@ dependencies:
   syncfusion_flutter_pdf: 
   syncfusion_flutter_pdfviewer: 
   printing: 
-  photo_view: 
-  native_pdf_renderer:
   flutter_localizations: 
     sdk: flutter
     version: 

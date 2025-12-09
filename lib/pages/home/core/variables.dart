@@ -9,9 +9,6 @@ import '../../../service/auth_service.dart';
 
 AuthService authService = AuthService.instance;
 String? nome;
-List<String> cpfs = ["", ""];
-
-int selectedCpf = 0;
 
 final TextEditingController pastorController = TextEditingController();
 final TextEditingController despesaController = TextEditingController();

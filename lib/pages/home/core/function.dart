@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:scr_project/service/auth_service.dart';
 
 import '../../../consts.dart';
@@ -9,6 +10,42 @@ import 'variables.dart';
 
 final _despesas = list.allDespesas;
 
+void valorListener() {
+  valorRecusadoController.updateValue(
+    apresentadoController.numberValue - valorController.numberValue,
+  );
+}
+
+void valorRecusadoListener() {
+  valorController.updateValue(
+    apresentadoController.numberValue - valorRecusadoController.numberValue,
+  );
+}
+
+void onFocus2Listener() {
+  Future.delayed(const Duration(microseconds: 10), () {
+    apresentadoController.selection = TextSelection.collapsed(
+      offset: apresentadoController.text.length,
+    );
+  });
+}
+
+void onFocus4Listener() {
+  Future.delayed(const Duration(microseconds: 10), () {
+    valorController.selection = TextSelection.collapsed(
+      offset: valorController.text.length,
+    );
+  });
+}
+
+void onFocus5Listener() {
+  Future.delayed(const Duration(microseconds: 10), () {
+    valorRecusadoController.selection = TextSelection.collapsed(
+      offset: valorRecusadoController.text.length,
+    );
+  });
+}
+
 void init() {
   nome = AuthService.instance.nome;
   db.collection("users").where("nome", isEqualTo: nome).get().then(
@@ -16,25 +53,16 @@ void init() {
       return authService.campo = value.docs[0]["campo"].toString();
     },
   );
+
+  valorController.addListener(valorListener);
+  valorRecusadoController.addListener(valorRecusadoListener);
+
+  nodes[2].addListener(onFocus2Listener);
+  nodes[4].addListener(onFocus4Listener);
+  nodes[5].addListener(onFocus5Listener);
 }
 
-void clearFields({bool all = false}) {
-  if (all) {
-    pastorController.clear();
-    cpfs = ["", ""];
-    selectedCpf = 0;
-    periodoController.clear();
-  }
-  despesaController.clear();
-  apresentadoController.text = "R\$0,00";
-  cupomController.clear();
-  dateController.clear();
-  valorController.text = "R\$0,00";
-  valorRecusadoController.text = "R\$0,00";
-  motivoController.clear();
-}
-
-void submit() {
+void submit(String cpf) {
   String despesa = despesaController.text;
   if (despesa.isNotEmpty &&
       pastorController.text.isNotEmpty &&
@@ -45,7 +73,7 @@ void submit() {
         despesa,
         ValueModel(
           pastor: pastorController.text,
-          cpf: cpfs[selectedCpf],
+          cpf: cpf,
           periodo: periodoController.text,
           apresentado: apresentadoController.text,
           cupom: cupomController.text,
@@ -62,7 +90,7 @@ void submit() {
           values: [
             ValueModel(
               pastor: pastorController.text,
-              cpf: cpfs[selectedCpf],
+              cpf: cpf,
               periodo: periodoController.text,
               apresentado: apresentadoController.text,
               cupom: cupomController.text,
@@ -76,6 +104,88 @@ void submit() {
       );
     }
   }
+}
+
+void selectDate(BuildContext context) {
+  showDatePicker(
+    locale: const Locale("pt", "BR"),
+    context: context,
+    initialDate: DateTime.now(),
+    firstDate: DateTime(DateTime.now().year - 1, 12),
+    lastDate: DateTime(DateTime.now().year + 1, 1, 31),
+  ).then(
+    (value) {
+      if (value == null) {
+        Builder(
+          builder: (context) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Selecione uma data"),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            return Container();
+          },
+        );
+      } else {
+        dateController.text =
+            "${value.day < 10 ? "0${value.day}" : value.day}/${value.month < 10 ? "0${value.month}" : value.month}/${value.year}";
+      }
+    },
+  ).then(
+    (_) {
+      if (context.mounted) {
+        nodes[2].requestFocus();
+
+        Future.delayed(const Duration(microseconds: 10), () {
+          apresentadoController.selection = TextSelection.collapsed(
+            offset: apresentadoController.text.length,
+          );
+        });
+      }
+    },
+  );
+}
+
+void selectMonth(BuildContext context) {
+  showMonthPicker(
+    context: context,
+    monthPickerDialogSettings: const MonthPickerDialogSettings(
+      dialogSettings: PickerDialogSettings(
+        locale: Locale("pt", "BR"),
+      ),
+    ),
+    initialDate: DateTime.now(),
+    firstDate: DateTime(DateTime.now().year - 1, 12),
+    lastDate: DateTime(DateTime.now().year, 12),
+  ).then(
+    (value) {
+      if (value == null) {
+        Builder(
+          builder: (context) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  "Selecione um mês",
+                ),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            return Container();
+          },
+        );
+      } else {
+        periodoController.text =
+            "${value.month < 10 ? "0${value.month}" : value.month.toString()}/${value.year.toString()}";
+      }
+    },
+  ).then(
+    (_) {
+      if (context.mounted) {
+        nodes[1].requestFocus();
+      }
+    },
+  );
 }
 
 Widget generateTotal(int index) {
